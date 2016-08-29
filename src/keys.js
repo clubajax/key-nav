@@ -7,7 +7,7 @@
             if(!node){
                 return false;
             }
-            return node.selected || node.getAttribute('selected') || node.classList.contains('ml-selected');
+            return node.selected || node.getAttribute('selected');
         }
 
         function getSelected(children){
@@ -98,6 +98,7 @@
                 searchString = '',
                 searchStringTimer,
                 searchStringTime = options.searchTime || 1000,
+                // children is a live NodeList, so the reference will update if nodes are added or removed
                 children = listNode.children,
                 selected = select(getSelected(children)),
                 highlighted = highlight(selected),

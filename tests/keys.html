@@ -30,6 +30,7 @@
 </head>
 <body>
     <h1>keys demo</h1>
+    <button id="add">Add Item</button>
     <ol id="list" tabindex="0">
         <li>uno</li>
         <li>dos</li>
@@ -38,8 +39,19 @@
         <li>cinco</li>
     </ol>
     <script>
-        var listNode = document.getElementById('list');
+        var
+            items = ['seis', 'siete', 'ocho', 'nueve', 'diez'],
+            listNode = document.getElementById('list');
         keys(listNode);
+
+        on('add', 'click', function () {
+            var
+                item = items.shift(),
+                node = document.createElement('li');
+            node.innerHTML = item;
+            listNode.appendChild(node);
+        });
+
     </script>
 </body>
 </html>
