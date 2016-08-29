@@ -42,7 +42,7 @@
         var
             items = ['seis', 'siete', 'ocho', 'nueve', 'diez'],
             listNode = document.getElementById('list');
-        keys(listNode);
+        keys(listNode, {roles: true});
 
         on('add', 'click', function () {
             var

@@ -3,76 +3,6 @@
         
         'use strict';
 
-        function isSelected(node){
-            if(!node){
-                return false;
-            }
-            return node.selected || node.getAttribute('selected');
-        }
-
-        function getSelected(children){
-            for(var i = 0; i < children.length; i++){
-                if(isSelected(children[i])){
-                    return children[i];
-                }
-            }
-            return children[0];
-        }
-
-        function getNext(children, index){
-            var
-                norecurse = children.length + 2,
-                node = children[index];
-            while(node){
-                index++;
-                if(index > children.length - 1){
-                    index = -1;
-                }else if(children[index] && !children[index].parentNode.disabled){
-                    node = children[index];
-                    break;
-                }
-                if(norecurse-- < 0){
-                    console.log('RECURSE');
-                    break;
-                }
-            }
-            return node;
-        }
-
-        function getPrev(children, index){
-            var
-                norecurse = children.length + 2,
-                node = children[index];
-            while(node){
-                index--;
-                if(index < 0){
-                    index = children.length;
-                }else if(children[index] && !children[index].parentNode.disabled){
-                    node = children[index];
-                    break;
-                }
-                if(norecurse-- < 0){
-                    console.log('RECURSE');
-                    break;
-                }
-            }
-            return node;
-        }
-
-        function getNode(children, highlighted, dir){
-            var i;
-            for(i = 0; i < children.length; i++){
-                if(children[i] === highlighted){
-                    break;
-                }
-            }
-            if(dir === 'down'){
-                return getNext(children, i);
-            }else if(dir === 'up'){
-                return getPrev(children, i);
-            }
-        }
-
         function keys (listNode, options) {
 
             options = options || {};
@@ -95,8 +25,12 @@
                         select();
                         highlight();
                         this.handles.forEach(function (h) { h.remove(); });
+                        if(observer) {
+                            observer.disconnect();
+                        }
                     }
                 },
+                observer,
                 searchString = '',
                 searchStringTimer,
                 searchStringTime = options.searchTime || 1000,
@@ -193,7 +127,92 @@
                 })
             ];
 
+            if(options.roles){
+                addRoles(listNode);
+                if(typeof MutationObserver !== 'undefined') {
+                    observer = new MutationObserver(function (mutations) {
+                        mutations.forEach(function (event) {
+                            console.log('mutation', event);
+                            if(event.addedNodes.length){
+                                addRoles(listNode);
+                            }
+                        });
+                    });
+                    observer.observe(listNode, {childList: true});
+                }
+            }
+
             return controller;
+        }
+
+        function isSelected(node){
+            if(!node){
+                return false;
+            }
+            return node.selected || node.getAttribute('selected');
+        }
+
+        function getSelected(children){
+            for(var i = 0; i < children.length; i++){
+                if(isSelected(children[i])){
+                    return children[i];
+                }
+            }
+            return children[0];
+        }
+
+        function getNext(children, index){
+            var
+                norecurse = children.length + 2,
+                node = children[index];
+            while(node){
+                index++;
+                if(index > children.length - 1){
+                    index = -1;
+                }else if(children[index] && !children[index].parentNode.disabled){
+                    node = children[index];
+                    break;
+                }
+                if(norecurse-- < 0){
+                    console.log('RECURSE');
+                    break;
+                }
+            }
+            return node;
+        }
+
+        function getPrev(children, index){
+            var
+                norecurse = children.length + 2,
+                node = children[index];
+            while(node){
+                index--;
+                if(index < 0){
+                    index = children.length;
+                }else if(children[index] && !children[index].parentNode.disabled){
+                    node = children[index];
+                    break;
+                }
+                if(norecurse-- < 0){
+                    console.log('RECURSE');
+                    break;
+                }
+            }
+            return node;
+        }
+
+        function getNode(children, highlighted, dir){
+            var i;
+            for(i = 0; i < children.length; i++){
+                if(children[i] === highlighted){
+                    break;
+                }
+            }
+            if(dir === 'down'){
+                return getNext(children, i);
+            }else if(dir === 'up'){
+                return getPrev(children, i);
+            }
         }
 
         function searchHtmlContent (children, str) {
@@ -203,6 +222,14 @@
                 }
             }
             return null;
+        }
+
+        function addRoles(node){
+            // https://www.w3.org/TR/wai-aria/roles#listbox
+            for(var i = 0; i < node.children.length; i++){
+                node.children[i].setAttribute('role', 'listitem');
+            }
+            node.setAttribute('role', 'listbox');
         }
 
         if (typeof customLoader === 'function'){ customLoader(keys, 'keys'); }

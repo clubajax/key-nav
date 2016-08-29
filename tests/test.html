@@ -1,7 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
-    <title>Test fx</title>
+    <title>Test keys</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
     <script src="../bower_components/on/dist/on.js"></script>
     <script src="../src/keys.js"></script>
@@ -32,7 +32,7 @@
     </style>
 </head>
 <body>
-    <h1>fx test</h1>
+    <h1>keys test</h1>
     <div id="mocha"></div>
     <ol id="list" tabindex="0">
         <li>uno</li>
@@ -57,6 +57,20 @@
             function xtest () {}
             function byId (id) {
                 return document.getElementById(id);
+            }
+            function addItems (listNode, amount) {
+                amount = amount || 1;
+                var
+                    i,
+                    items = ['seis', 'siete', 'ocho', 'nueve', 'diez'],
+                    item,
+                    node;
+                for( i = 0; i < amount; i++){
+                    item = items.shift();
+                    node = document.createElement('li');
+                    node.innerHTML = item;
+                    listNode.appendChild(node);
+                }
             }
 
             suite('arrow keys', function () {
@@ -145,6 +159,29 @@
                     expect(node.querySelector('[selected]')).to.equal(node.children[2]);
                     expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
                     controller.destroy();
+                });
+            });
+
+            suite('roles', function () {
+                test('it should add roles to children if in options', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {roles:true});
+                    window.node = node;
+                    expect(node.querySelectorAll('[role="listitem"]').length).to.equal(5);
+                    controller.destroy();
+                });
+                test('it should add roles to added children', function (done) {
+                    var node = byId('list'),
+                        controller = keys(node, {roles:true});
+                    window.node = node;
+                    expect(node.querySelectorAll('[role="listitem"]').length).to.equal(5);
+                    addItems(node, 2);
+                    setTimeout(function () {
+                        expect(node.querySelectorAll('[role="listitem"]').length).to.equal(7);
+                        controller.destroy();
+                        done();
+                    }, 100);
+
                 });
             });
 
