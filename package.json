@@ -1,0 +1,29 @@
+{
+  "name": "key-nav",
+  "version": "0.0.1",
+  "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
+  "main": "dist/keys.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/clubajax/key-nav.git"
+  },
+  "keywords": [
+    "JavaScript",
+    "UI"
+  ],
+  "author": "anm9tr@gmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/clubajax/key-nav/issues"
+  },
+  "homepage": "https://github.com/clubajax/key-nav#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1"
+  },
+  "dependencies": {
+    "on": "clubajax/on#v1.5.2"
+  }
+}

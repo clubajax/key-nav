@@ -1,0 +1,17 @@
+{
+  "name": "metl",
+  "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
+  "main": "dist/keys.js",
+  "authors": [
+    "anm9tr@gmail.com"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "JavaScript",
+    "UI"
+  ],
+  "homepage": "https://github.com/clubajax/key-nav",
+  "dependencies": {
+    "on": "clubajax/on#v1.5.4"
+  }
+}
