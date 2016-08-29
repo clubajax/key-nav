@@ -75,6 +75,13 @@
 
         function keys (listNode, options) {
 
+            options = options || {};
+
+            // TODO options:
+            // search an option?
+            // space select an option?
+            // add aria
+
             var
                 controller = {
                     setSelected: function (node) {
@@ -88,6 +95,9 @@
                         this.handles.forEach(function (h) { h.remove(); });
                     }
                 },
+                searchString = '',
+                searchStringTimer,
+                searchStringTime = options.searchTime || 1000,
                 children = listNode.children,
                 selected = select(getSelected(children)),
                 highlighted = highlight(selected),
@@ -160,8 +170,21 @@
                             break;
                         default:
                             // the event is not handled
+                            if(on.isAlphaNumeric(e.key)){
+                                searchString += e.key;
+                                var searchNode = searchHtmlContent(children, searchString);
+                                if(searchNode){
+                                    highlight(select(searchNode));
+                                }
+                                break;
+                            }
                             return;
                     }
+
+                    clearTimeout(searchStringTimer);
+                    searchStringTimer = setTimeout(function () {
+                        searchString = '';
+                    }, searchStringTime);
                     e.preventDefault();
                     return false;
                 })
@@ -169,7 +192,16 @@
 
             return controller;
         }
-        
+
+        function searchHtmlContent (children, str) {
+            for(var i = 0; i < children.length; i++){
+                if(children[i].innerHTML.indexOf(str) === 0){
+                    return children[i];
+                }
+            }
+            return null;
+        }
+
         if (typeof customLoader === 'function'){ customLoader(keys, 'keys'); }
         else if (typeof window !== 'undefined') { window.keys = keys; }
         else if (typeof module !== 'undefined') { module.exports = keys; }

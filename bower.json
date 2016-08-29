@@ -12,6 +12,6 @@
   ],
   "homepage": "https://github.com/clubajax/key-nav",
   "dependencies": {
-    "on": "clubajax/on#v1.5.4"
+    "on": "clubajax/on#v1.5.5"
   }
 }

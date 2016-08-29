@@ -24,6 +24,6 @@
     "grunt": "^1.0.1"
   },
   "dependencies": {
-    "on": "clubajax/on#v1.5.2"
+    "on": "clubajax/on#v1.5.5"
   }
 }
