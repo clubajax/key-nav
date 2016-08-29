@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/clubajax/key-nav#readme",
   "devDependencies": {
-    "grunt": "^1.0.1"
+    "grunt": "^1.0.1",
+    "grunt-contrib-uglify": "^2.0.0"
   },
   "dependencies": {
     "on": "clubajax/on#v1.5.5"
