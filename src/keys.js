@@ -92,6 +92,8 @@
                         return selected;
                     },
                     destroy: function () {
+                        select();
+                        highlight();
                         this.handles.forEach(function (h) { h.remove(); });
                     }
                 },

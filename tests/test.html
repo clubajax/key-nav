@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en">
+<head>
+    <title>Test fx</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
+    <script src="../bower_components/on/dist/on.js"></script>
+    <script src="../src/keys.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
+    <style>
+        body{
+            padding: 20px;
+            font-family: sans-serif;
+        }
+        ol{
+            display: block;
+            border: 1px solid #ccc;
+            padding: 0;
+            cursor: pointer;
+        }
+        li{
+            list-style: none;
+            padding: 3px;
+        }
+        li[highlighted]{
+            background: #eee;
+        }
+        li[selected]{
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h1>fx test</h1>
+    <div id="mocha"></div>
+    <ol id="list" tabindex="0">
+        <li>uno</li>
+        <li>dos</li>
+        <li>tres</li>
+        <li>cuatro</li>
+        <li>cinco</li>
+    </ol>
+    <script>
+
+        mocha.setup('tdd');
+
+        suite('keys', function() {
+            this.timeout(3000);
+            var suite = window.suite,
+                test = window.test,
+                dom = window.dom,
+                on = window.on,
+                expect = chai.expect;
+
+            function xsuite () {}
+            function xtest () {}
+            function byId (id) {
+                return document.getElementById(id);
+            }
+
+            suite('arrow keys', function () {
+                test('it should select and highlight the first item by default', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[0]);
+                    controller.destroy();
+                });
+                test('it should unselect and unhighlight when destroyed', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    controller.destroy();
+                    expect(node.querySelector('[selected]')).to.equal(null);
+                    expect(node.querySelector('[highlighted]')).to.equal(null);
+                    // already destroyed
+                });
+                test('it should highlight, but not select, the next node on arrow down', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[1]);
+                    controller.destroy();
+                });
+                test('it should select on Enter', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[1]);
+                    on.emit(node, 'keydown', {key: 'Enter'}, true);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[1]);
+                    controller.destroy();
+                });
+                test('it should highlight the last node on arrow up', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    on.emit(node, 'keydown', {key: 'ArrowUp'}, true);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[node.children.length-1]);
+                    on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[0]);
+                    controller.destroy();
+                });
+
+            });
+
+            suite('click', function () {
+                test('it should highlight and select on click', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    on.emit(node.children[2], 'click');
+                    expect(node.querySelector('[selected]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    controller.destroy();
+                });
+            });
+
+            suite('search', function () {
+                test('it should select a node on alpha input', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    on.emit(node, 'keydown', {key: 't'}, true);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    controller.destroy();
+                });
+                test('it should select a different node on two alpha inputs', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    on.emit(node, 'keydown', {key: 'c'}, true);
+                    on.emit(node, 'keydown', {key: 'i'}, true);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[4]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[4]);
+                    controller.destroy();
+                });
+            });
+
+            suite('programmatic', function () {
+                test('it should select a node with setSelected()', function () {
+                    var node = byId('list'),
+                        controller = keys(node);
+                    controller.setSelected(node.children[2]);
+                    expect(node.querySelector('[selected]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    controller.destroy();
+                });
+            });
+
+        });
+
+        mocha.run();
+
+    </script>
+</body>
+</html>
