@@ -8,17 +8,15 @@ module.exports = function (grunt) {
         src = './src/', dist = './dist/',
         uglify = {
             main:{
-                files: {
-
-                }
-        },
-        options:{
-            mangle: false,
+                files: {}
+            },
+            options:{
+                mangle: false,
                 beautify: true,
                 indentStart: 0,
                 indentLevel: 0
-        }
-    };
+            }
+        };
     uglify.main.files[dist + minFileName] = [dist + fileName];
 
     grunt.initConfig({
