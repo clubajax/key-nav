@@ -1,0 +1,21 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <title>test store requirejs</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.2/require.min.js" data-main="../dist/store"></script>
+    <script>
+        require(['store'], function (store) {
+            var list = store({
+                plugins: 'sort'
+            });
+            list.add([{id:1, label:'alpha'}, {id:2, label: 'beta'}]);
+
+            console.log('list:', list.fetch());
+        });
+    </script>
+
+</head>
+<body>
+    <h1>test store requirejs</h1>
+</body>
+</html>

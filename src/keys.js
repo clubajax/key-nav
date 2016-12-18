@@ -232,10 +232,18 @@
             node.setAttribute('role', 'listbox');
         }
 
-        if (typeof customLoader === 'function'){ customLoader(keys, 'keys'); }
-        else if (typeof window !== 'undefined') { window.keys = keys; }
-        else if (typeof module !== 'undefined') { module.exports = keys; }
-        else { return keys; }
+        if (typeof customLoader === 'function') {
+            customLoader(keys, 'keys');
+        }
+        else if(typeof define === 'function' && define.amd){
+            return keys;
+        }
+        else if (typeof module !== 'undefined') {
+            module.exports = keys;
+        }
+        else if (typeof window !== 'undefined') {
+            window.keys = keys;
+        }
     });
 }(
     typeof define == 'function' && define.amd ? define : function (ids, factory) {
