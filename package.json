@@ -25,6 +25,6 @@
     "grunt-contrib-uglify": "^2.0.0"
   },
   "dependencies": {
-    "on": "clubajax/on#v1.7.0"
+    "on": "clubajax/on#v1.7.5"
   }
 }
