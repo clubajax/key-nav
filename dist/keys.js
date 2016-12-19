@@ -132,7 +132,6 @@
                 if(typeof MutationObserver !== 'undefined') {
                     observer = new MutationObserver(function (mutations) {
                         mutations.forEach(function (event) {
-                            console.log('mutation', event);
                             if(event.addedNodes.length){
                                 addRoles(listNode);
                             }
