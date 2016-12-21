@@ -42,11 +42,6 @@
                 highlighted = highlight(fromArray(selected)),
                 nodeType = (highlighted || children[0]).localName;
 
-            console.log('init selected', selected);
-            //if(options.multiple){
-            //    selected = [selected];
-            //}
-
             function highlight (node) {
                 node = fromArray(node);
                 if(highlighted){
@@ -61,10 +56,8 @@
 
             function select (node) {
                 if(options.multiple){
-                    console.log('select', node);
                     if(selected){
                         if(!shift && !meta) {
-                            console.log('selected', selected);
                             selected.forEach(function (sel) {
                                 sel.removeAttribute('selected');
                             });
@@ -75,7 +68,7 @@
                             }
                         }
                         else if(shift && node){
-
+                            selected = findShiftNodes(children, selected, node);
                         }
                         else if(meta && node){
 
@@ -85,7 +78,6 @@
                                 selected.push(node);
                             }
                             node.setAttribute('selected', 'true');
-                            console.log('META!');
                         }
                     }else{
                         selected = [node];
@@ -124,10 +116,23 @@
                     select(node);
                     on.fire(listNode, 'key-select', {value: selected});
                 }),
-                on(listNode, 'keyup', function (e) {
+                on(document, 'keyup', function (e) {
                     if (e.defaultPrevented) { return; }
                     shift = false;
                     meta = false;
+                }),
+                on(document, 'keydown', function (e) {
+                    if (e.defaultPrevented) { return; }
+                    switch (e.key) {
+                        case 'Meta':
+                        case 'Control':
+                        case 'Command':
+                            meta = true;
+                            break;
+                        case 'Shift':
+                            shift = true;
+                            break;
+                    }
                 }),
                 on(listNode, 'keydown', function (e) {
                     if (e.defaultPrevented) { return; }
@@ -139,7 +144,7 @@
                             break;
                         case 'Escape':
                             // consult options?
-                            console.log('esc');
+                            select(null);
                             break;
                         case 'ArrowRight':
                         case 'ArrowDown':
@@ -150,14 +155,6 @@
                         case 'ArrowUp':
                             highlight(getNode(children, highlighted || selected, 'up'));
                             on.fire(listNode, 'key-highlight', {value: highlighted});
-                            break;
-                        case 'Meta':
-                        case 'Control':
-                        case 'Command':
-                            meta = true;
-                            break;
-                        case 'Shift':
-                            shift = true;
                             break;
                         default:
                             console.log('key', e.key);
@@ -276,6 +273,35 @@
                 }
             }
             return null;
+        }
+
+        function findShiftNodes (children, selected, node) {
+            var i, a, b, c, lastNode = selected[selected.length-1], newIndex, lastIndex, selection = [];
+            selected.forEach(function (sel) {
+                sel.removeAttribute('selected');
+            });
+            for(i = 0; i < children.length; i++){
+                c = children[i];
+                if(c === node){
+                    newIndex = i;
+                }else if(c === lastNode ){
+                    lastIndex = i;
+                }
+            }
+            if(newIndex < lastIndex){
+                a = newIndex;
+                b = lastIndex;
+            }else{
+                b = newIndex;
+                a = lastIndex;
+            }
+
+            while (a <= b) {
+                children[a].setAttribute('selected', '');
+                selection.push(children[a]);
+                a++;
+            }
+            return selection;
         }
 
         function addRoles(node){

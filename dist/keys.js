@@ -30,6 +30,8 @@
                         }
                     }
                 },
+                shift = false,
+                meta = false,
                 observer,
                 searchString = '',
                 searchStringTimer,
@@ -37,10 +39,11 @@
                 // children is a live NodeList, so the reference will update if nodes are added or removed
                 children = listNode.children,
                 selected = select(getSelected(children)),
-                highlighted = highlight(selected),
-                nodeType = highlighted.localName;
+                highlighted = highlight(fromArray(selected)),
+                nodeType = (highlighted || children[0]).localName;
 
             function highlight (node) {
+                node = fromArray(node);
                 if(highlighted){
                     highlighted.removeAttribute('highlighted');
                 }
@@ -52,12 +55,42 @@
             }
 
             function select (node) {
-                if(selected){
-                    selected.removeAttribute('selected');
-                }
-                if(node) {
-                    selected = node;
-                    selected.setAttribute('selected', 'true');
+                if(options.multiple){
+                    if(selected){
+                        if(!shift && !meta) {
+                            selected.forEach(function (sel) {
+                                sel.removeAttribute('selected');
+                            });
+
+                            if (node) {
+                                selected = [node];
+                                node.setAttribute('selected', 'true');
+                            }
+                        }
+                        else if(shift && node){
+                            selected = findShiftNodes(children, selected, node);
+                        }
+                        else if(meta && node){
+
+                            if(!selected){
+                                selected = [node];
+                            }else{
+                                selected.push(node);
+                            }
+                            node.setAttribute('selected', 'true');
+                        }
+                    }else{
+                        selected = [node];
+                    }
+
+                }else{
+                    if(selected){
+                        selected.removeAttribute('selected');
+                    }
+                    if(node) {
+                        selected = node;
+                        selected.setAttribute('selected', 'true');
+                    }
                 }
                 return selected;
             }
@@ -83,6 +116,24 @@
                     select(node);
                     on.fire(listNode, 'key-select', {value: selected});
                 }),
+                on(document, 'keyup', function (e) {
+                    if (e.defaultPrevented) { return; }
+                    shift = false;
+                    meta = false;
+                }),
+                on(document, 'keydown', function (e) {
+                    if (e.defaultPrevented) { return; }
+                    switch (e.key) {
+                        case 'Meta':
+                        case 'Control':
+                        case 'Command':
+                            meta = true;
+                            break;
+                        case 'Shift':
+                            shift = true;
+                            break;
+                    }
+                }),
                 on(listNode, 'keydown', function (e) {
                     if (e.defaultPrevented) { return; }
 
@@ -93,7 +144,7 @@
                             break;
                         case 'Escape':
                             // consult options?
-                            console.log('esc');
+                            select(null);
                             break;
                         case 'ArrowRight':
                         case 'ArrowDown':
@@ -106,6 +157,7 @@
                             on.fire(listNode, 'key-highlight', {value: highlighted});
                             break;
                         default:
+                            console.log('key', e.key);
                             // the event is not handled
                             if(on.isAlphaNumeric(e.key)){
                                 searchString += e.key;
@@ -223,12 +275,45 @@
             return null;
         }
 
+        function findShiftNodes (children, selected, node) {
+            var i, a, b, c, lastNode = selected[selected.length-1], newIndex, lastIndex, selection = [];
+            selected.forEach(function (sel) {
+                sel.removeAttribute('selected');
+            });
+            for(i = 0; i < children.length; i++){
+                c = children[i];
+                if(c === node){
+                    newIndex = i;
+                }else if(c === lastNode ){
+                    lastIndex = i;
+                }
+            }
+            if(newIndex < lastIndex){
+                a = newIndex;
+                b = lastIndex;
+            }else{
+                b = newIndex;
+                a = lastIndex;
+            }
+
+            while (a <= b) {
+                children[a].setAttribute('selected', '');
+                selection.push(children[a]);
+                a++;
+            }
+            return selection;
+        }
+
         function addRoles(node){
             // https://www.w3.org/TR/wai-aria/roles#listbox
             for(var i = 0; i < node.children.length; i++){
                 node.children[i].setAttribute('role', 'listitem');
             }
             node.setAttribute('role', 'listbox');
+        }
+
+        function fromArray (thing) {
+            return Array.isArray(thing) ? thing[0] : thing;
         }
 
         if (typeof customLoader === 'function') {

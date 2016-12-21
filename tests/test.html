@@ -186,12 +186,37 @@
             });
 
             suite('multi-select', function () {
-                test('it should select multiple on shift-click', function () {
+                test('it should select multiple on control-click', function () {
                     var node = byId('list'),
                         controller = keys(node, {multiple:true});
                     on.emit(node.children[2], 'click');
-                    //expect(node.querySelector('[selected]')).to.equal(node.children[2]);
-                    //expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    on.emit(document, 'keydown', {key:'Meta'});
+                    on.emit(node.children[3], 'click');
+
+                    expect(node.querySelectorAll('[selected]').length).to.equal(2);
+                    controller.destroy();
+                    on.emit(document, 'keyup');
+                });
+
+                test('it should select multiple on shift-click', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {multiple:true});
+                    on.emit(node.children[1], 'click');
+                    on.emit(document, 'keydown', {key:'Shift'});
+                    on.emit(node.children[3], 'click');
+                    expect(node.querySelectorAll('[selected]').length).to.equal(3);
+                    on.emit(document, 'keyup');
+                    controller.destroy();
+                });
+
+                test('it should select multiple on shift-click (select upward)', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {multiple:true});
+                    on.emit(node.children[3], 'click');
+                    on.emit(document, 'keydown', {key:'Shift'});
+                    on.emit(node.children[1], 'click');
+                    expect(node.querySelectorAll('[selected]').length).to.equal(3);
+                    on.emit(document, 'keyup');
                     //controller.destroy();
                 });
             });
