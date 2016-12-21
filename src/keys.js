@@ -30,6 +30,8 @@
                         }
                     }
                 },
+                shift = false,
+                meta = false,
                 observer,
                 searchString = '',
                 searchStringTimer,
@@ -37,10 +39,16 @@
                 // children is a live NodeList, so the reference will update if nodes are added or removed
                 children = listNode.children,
                 selected = select(getSelected(children)),
-                highlighted = highlight(selected),
-                nodeType = highlighted.localName;
+                highlighted = highlight(fromArray(selected)),
+                nodeType = (highlighted || children[0]).localName;
+
+            console.log('init selected', selected);
+            //if(options.multiple){
+            //    selected = [selected];
+            //}
 
             function highlight (node) {
+                node = fromArray(node);
                 if(highlighted){
                     highlighted.removeAttribute('highlighted');
                 }
@@ -52,12 +60,45 @@
             }
 
             function select (node) {
-                if(selected){
-                    selected.removeAttribute('selected');
-                }
-                if(node) {
-                    selected = node;
-                    selected.setAttribute('selected', 'true');
+                if(options.multiple){
+                    console.log('select', node);
+                    if(selected){
+                        if(!shift && !meta) {
+                            console.log('selected', selected);
+                            selected.forEach(function (sel) {
+                                sel.removeAttribute('selected');
+                            });
+
+                            if (node) {
+                                selected = [node];
+                                node.setAttribute('selected', 'true');
+                            }
+                        }
+                        else if(shift && node){
+
+                        }
+                        else if(meta && node){
+
+                            if(!selected){
+                                selected = [node];
+                            }else{
+                                selected.push(node);
+                            }
+                            node.setAttribute('selected', 'true');
+                            console.log('META!');
+                        }
+                    }else{
+                        selected = [node];
+                    }
+
+                }else{
+                    if(selected){
+                        selected.removeAttribute('selected');
+                    }
+                    if(node) {
+                        selected = node;
+                        selected.setAttribute('selected', 'true');
+                    }
                 }
                 return selected;
             }
@@ -83,6 +124,11 @@
                     select(node);
                     on.fire(listNode, 'key-select', {value: selected});
                 }),
+                on(listNode, 'keyup', function (e) {
+                    if (e.defaultPrevented) { return; }
+                    shift = false;
+                    meta = false;
+                }),
                 on(listNode, 'keydown', function (e) {
                     if (e.defaultPrevented) { return; }
 
@@ -105,7 +151,16 @@
                             highlight(getNode(children, highlighted || selected, 'up'));
                             on.fire(listNode, 'key-highlight', {value: highlighted});
                             break;
+                        case 'Meta':
+                        case 'Control':
+                        case 'Command':
+                            meta = true;
+                            break;
+                        case 'Shift':
+                            shift = true;
+                            break;
                         default:
+                            console.log('key', e.key);
                             // the event is not handled
                             if(on.isAlphaNumeric(e.key)){
                                 searchString += e.key;
@@ -229,6 +284,10 @@
                 node.children[i].setAttribute('role', 'listitem');
             }
             node.setAttribute('role', 'listbox');
+        }
+
+        function fromArray (thing) {
+            return Array.isArray(thing) ? thing[0] : thing;
         }
 
         if (typeof customLoader === 'function') {

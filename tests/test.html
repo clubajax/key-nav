@@ -73,7 +73,7 @@
                 }
             }
 
-            suite('arrow keys', function () {
+            xsuite('arrow keys', function () {
                 test('it should select and highlight the first item by default', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -120,7 +120,7 @@
 
             });
 
-            suite('click', function () {
+            xsuite('click', function () {
                 test('it should highlight and select on click', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -131,7 +131,7 @@
                 });
             });
 
-            suite('search', function () {
+            xsuite('search', function () {
                 test('it should select a node on alpha input', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -151,7 +151,7 @@
                 });
             });
 
-            suite('programmatic', function () {
+            xsuite('programmatic', function () {
                 test('it should select a node with setSelected()', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -162,7 +162,7 @@
                 });
             });
 
-            suite('roles', function () {
+            xsuite('roles', function () {
                 test('it should add roles to children if in options', function () {
                     var node = byId('list'),
                         controller = keys(node, {roles:true});
@@ -182,6 +182,17 @@
                         done();
                     }, 100);
 
+                });
+            });
+
+            suite('multi-select', function () {
+                test('it should select multiple on shift-click', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {multiple:true});
+                    on.emit(node.children[2], 'click');
+                    //expect(node.querySelector('[selected]')).to.equal(node.children[2]);
+                    //expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    //controller.destroy();
                 });
             });
 
