@@ -1,5 +1,18 @@
-(function (define) {
-    define(['on'], function (on) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['on'], factory);
+    } else if (typeof module === 'object' && module.exports) {
+        // Node. Does not work with strict CommonJS, but
+        // only CommonJS-like environments that support module.exports,
+        // like Node.
+        module.exports = factory(require('on'));
+    } else {
+        // Browser globals (root is window)
+        root.returnExports = factory();
+        root['keys'] = factory(root.on);
+    }
+}(this, function (on) {
         
         'use strict';
 
@@ -11,6 +24,7 @@
             // search an option?
             // space select an option?
             // add aria
+            // handle cell navigation
 
             var
                 controller = {
@@ -316,22 +330,6 @@
             return Array.isArray(thing) ? thing[0] : thing;
         }
 
-        if (typeof customLoader === 'function') {
-            customLoader(keys, 'keys');
-        }
-        else if(typeof define === 'function' && define.amd){
-            return keys;
-        }
-        else if (typeof module !== 'undefined') {
-            module.exports = keys;
-        }
-        else if (typeof window !== 'undefined') {
-            window.keys = keys;
-        }
-    });
-}(
-    typeof define == 'function' && define.amd ? define : function (ids, factory) {
-        var deps = ids.map(function (id) { return typeof require == 'function' ? require(id) : window[id]; });
-        typeof module !== 'undefined' ? module.exports = factory.apply(null, deps) : factory.apply(null, deps);
-    }
-));
+    return keys;
+
+}));
