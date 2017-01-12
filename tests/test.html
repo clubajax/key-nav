@@ -22,12 +22,29 @@
             list-style: none;
             padding: 3px;
         }
-        li[highlighted]{
+        li[highlighted],
+        td[highlighted]{
             background: #eee;
         }
-        li[selected]{
+        li[selected],
+        td[selected]{
             background: #333;
             color: white;
+        }
+        tr[highlighted]{
+            background: #ff9295;
+        }
+        tr[selected]{
+            background: red;
+        }
+        table{
+            border: 2px solid #333;
+            border-collapse: collapse;
+        }
+        td{
+            border: 1px solid #ccc;
+            padding: 5px;
+            text-align: center;
         }
     </style>
 </head>
@@ -41,6 +58,19 @@
         <li>cuatro</li>
         <li>cinco</li>
     </ol>
+
+    <table tabindex="0" id="table">
+        <thead>
+            <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
+        </thead>
+        <tbody>
+            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
+            <tr><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
+            <tr><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
+            <tr><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr>
+            <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>
+        </tbody>
+    </table>
     <script>
 
         mocha.setup('tdd');
@@ -222,8 +252,8 @@
                 });
             });
 
-            suite('selection', function () {
-                xtest('it should default to the first item selected', function () {
+            xsuite('selection', function () {
+                test('it should default to the first item selected', function () {
                     var node = byId('list'),
                         controller = keys(node, {}),
                         selected = node.querySelectorAll('[selected]');
@@ -232,7 +262,7 @@
                     controller.destroy();
                 });
 
-                xtest('it should *not* default to the first item selected', function () {
+                test('it should *not* default to the first item selected', function () {
                     var node = byId('list'),
                         controller = keys(node, {noDefault: true}),
                         selected = node.querySelectorAll('[selected]');
@@ -241,7 +271,7 @@
                     controller.destroy();
                 });
 
-                xtest('it should select none with Escape', function () {
+                test('it should select none with Escape', function () {
                     var node = byId('list'),
                         controller = keys(node, {}),
                         selected = node.querySelectorAll('[selected]');
@@ -260,6 +290,35 @@
                     expect(selected.length).to.equal(1);
                     on.emit(node, 'keydown', {key:'Escape'});
                     expect(node.querySelectorAll('[selected]').length).to.equal(1);
+                    controller.destroy();
+                });
+            });
+
+            suite('table', function () {
+                test('it should navigate a table', function () {
+                    var
+                        sel = function (node) {
+                            return node.hasAttribute('selected');
+                        },
+                        hi = function (node) {
+                            return node.hasAttribute('highlighted');
+                        },
+                        node = byId('table'),
+                        controller = keys(node, {}),
+                        cells = node.querySelectorAll('td');
+
+                    expect(sel(cells[0])).to.equal(true);
+                    on.emit(node, 'keydown', {key:'ArrowDown'});
+                    expect(hi(cells[5])).to.equal(true);
+                    on.emit(node, 'keydown', {key:'ArrowUp'});
+                    on.emit(node, 'keydown', {key:'ArrowUp'});
+                    expect(hi(cells[20])).to.equal(true);
+                    on.emit(node, 'keydown', {key:'ArrowRight'});
+                    on.emit(node, 'keydown', {key:'ArrowRight'});
+                    on.emit(node, 'keydown', {key:'ArrowLeft'});
+                    expect(hi(cells[21])).to.equal(true);
+                    on.emit(node, 'keydown', {key:'Enter'});
+                    expect(sel(cells[21])).to.equal(true);
                     //controller.destroy();
                 });
             });
