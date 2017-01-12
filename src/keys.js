@@ -24,7 +24,6 @@
             // search an option and/or a function?
             // space select an option?
             // add aria
-            // handle cell navigation
 
             var
                 controller = {
