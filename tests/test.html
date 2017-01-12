@@ -54,8 +54,6 @@
                 expect = chai.expect;
 
 
-            console.log('KEYS', window.keys);
-
             function xsuite () {}
             function xtest () {}
             function byId (id) {
@@ -188,7 +186,7 @@
                 });
             });
 
-            suite('multi-select', function () {
+            xsuite('multi-select', function () {
                 test('it should select multiple on control-click', function () {
                     var node = byId('list'),
                         controller = keys(node, {multiple:true});
@@ -224,6 +222,47 @@
                 });
             });
 
+            suite('selection', function () {
+                xtest('it should default to the first item selected', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {}),
+                        selected = node.querySelectorAll('[selected]');
+
+                    expect(selected.length).to.equal(1);
+                    controller.destroy();
+                });
+
+                xtest('it should *not* default to the first item selected', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {noDefault: true}),
+                        selected = node.querySelectorAll('[selected]');
+
+                    expect(selected.length).to.equal(0);
+                    controller.destroy();
+                });
+
+                xtest('it should select none with Escape', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {}),
+                        selected = node.querySelectorAll('[selected]');
+
+                    expect(selected.length).to.equal(1);
+                    on.emit(node, 'keydown', {key:'Escape'});
+                    expect(node.querySelectorAll('[selected]').length).to.equal(0);
+                    controller.destroy();
+                });
+
+                test('it should *not* select none with Escape', function () {
+                    var node = byId('list'),
+                        controller = keys(node, {canSelectNone: false}),
+                        selected = node.querySelectorAll('[selected]');
+
+                    expect(selected.length).to.equal(1);
+                    on.emit(node, 'keydown', {key:'Escape'});
+                    expect(node.querySelectorAll('[selected]').length).to.equal(1);
+                    //controller.destroy();
+                });
+            });
         });
 
         mocha.run();

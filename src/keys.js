@@ -21,7 +21,7 @@
             options = options || {};
 
             // TODO options:
-            // search an option?
+            // search an option and/or a function?
             // space select an option?
             // add aria
             // handle cell navigation
@@ -44,6 +44,7 @@
                         }
                     }
                 },
+                canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
                 shift = false,
                 meta = false,
                 observer,
@@ -52,7 +53,7 @@
                 searchStringTime = options.searchTime || 1000,
                 // children is a live NodeList, so the reference will update if nodes are added or removed
                 children = listNode.children,
-                selected = select(getSelected(children)),
+                selected = select(getSelected(children, options.noDefault)),
                 highlighted = highlight(fromArray(selected)),
                 nodeType = (highlighted || children[0]).localName;
 
@@ -157,8 +158,9 @@
                             on.fire(listNode, 'key-select', {value: selected});
                             break;
                         case 'Escape':
-                            // consult options?
-                            select(null);
+                            if(canSelectNone) {
+                                select(null);
+                            }
                             break;
                         case 'ArrowRight':
                         case 'ArrowDown':
@@ -171,23 +173,28 @@
                             on.fire(listNode, 'key-highlight', {value: highlighted});
                             break;
                         default:
-                            console.log('key', e.key);
                             // the event is not handled
                             if(on.isAlphaNumeric(e.key)){
+                                if(e.key == 'r' && meta){
+                                    return true;
+                                }
                                 searchString += e.key;
                                 var searchNode = searchHtmlContent(children, searchString);
                                 if(searchNode){
                                     highlight(select(searchNode));
                                 }
+
+                                clearTimeout(searchStringTimer);
+                                searchStringTimer = setTimeout(function () {
+                                    searchString = '';
+                                }, searchStringTime);
+                                
                                 break;
                             }
                             return;
                     }
 
-                    clearTimeout(searchStringTimer);
-                    searchStringTimer = setTimeout(function () {
-                        searchString = '';
-                    }, searchStringTime);
+
                     e.preventDefault();
                     return false;
                 })
@@ -217,13 +224,13 @@
             return node.selected || node.getAttribute('selected');
         }
 
-        function getSelected(children){
+        function getSelected(children, noDefault){
             for(var i = 0; i < children.length; i++){
                 if(isSelected(children[i])){
                     return children[i];
                 }
             }
-            return children[0];
+            return noDefault ? null : children[0];
         }
 
         function getNext(children, index){
