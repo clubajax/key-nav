@@ -99,7 +99,7 @@
                     }
 
                 }else{
-                    if(selected){
+                	if(selected){
                         selected.removeAttribute('selected');
                     }
                     if(node) {
@@ -234,7 +234,7 @@
         if(!node){
             return false;
         }
-        return node.selected || node.getAttribute('selected');
+        return node.selected || node.hasAttribute('selected');
     }
 
     function getSelected(children, noDefault){
