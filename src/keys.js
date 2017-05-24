@@ -47,6 +47,7 @@
                 canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
                 shift = false,
                 meta = false,
+				multiHandle,
                 observer,
                 searchString = '',
                 searchStringTimer,
@@ -149,7 +150,7 @@
                             break;
                     }
                 }),
-                on(listNode, 'keydown', function (e) {
+                on(document, 'keydown', function (e) {
                     if (e.defaultPrevented) { return; }
 
                     switch (e.key) {
@@ -227,6 +228,10 @@
                 }
             }
 
+			multiHandle = on.makeMultiHandle(controller.handles);
+			Object.keys(multiHandle).forEach(function (key) {
+				controller[key] = multiHandle[key];
+			});
             return controller;
         }
 
