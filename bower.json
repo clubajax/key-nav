@@ -1,6 +1,6 @@
 {
   "name": "metl",
-  "version": "0.0.1",
+  "version": "0.9.0",
   "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
   "main": "src/keys.js",
   "authors": [
