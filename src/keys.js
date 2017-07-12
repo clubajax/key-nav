@@ -314,7 +314,7 @@
 	}
 
 	function isElligible (children, index) {
-		return children[index] && !children[index].parentNode.disabled && children[index].style.display !== 'none';
+		return children[index] && !children[index].unselectable && !children[index].parentNode.disabled && children[index].style.display !== 'none';
 	}
 
 	function getNode (children, highlighted, dir) {
