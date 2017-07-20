@@ -313,8 +313,12 @@
 		return node;
 	}
 
+	function isVisible (node) {
+		return node.style.display !== 'none' && node.offsetHeight && node.offsetWidth;
+	}
+
 	function isElligible (children, index) {
-		return children[index] && !children[index].unselectable && !children[index].parentNode.disabled && children[index].style.display !== 'none';
+		return children[index] && !children[index].parentNode.disabled && isVisible(children[index]);
 	}
 
 	function getNode (children, highlighted, dir) {
