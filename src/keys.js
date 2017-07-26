@@ -27,6 +27,7 @@
 
 		var
 			controller = {
+				log: false,
 				setSelected: function (node) {
 					highlight(select(node));
 					on.fire(listNode, 'key-select', { value: selected });
@@ -233,7 +234,12 @@
 				}
 				//e.preventDefault();
 				//return false;
-			})
+			}),
+			{
+				pause: function () { if(controller.log) {console.log('pause');} },
+				resume: function () { if(controller.log) {console.log('resume');} },
+				remove: function () { if(controller.log) {console.log('remove');} }
+			}
 		];
 
 		if (options.roles) {
