@@ -1,6 +1,6 @@
 {
   "name": "key-nav",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
   "main": "src/keys.js",
   "scripts": {
@@ -25,6 +25,6 @@
     "grunt-contrib-uglify": "^2.0.0"
   },
   "dependencies": {
-    "on": "clubajax/on#v2.0.0"
+    "on": "clubajax/on#v2.0.1"
   }
 }
