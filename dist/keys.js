@@ -1,12 +1,12 @@
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD. Register as an anonymous module.
-		define(['on'], factory);
+		define(['@clubajax/on'], factory);
 	} else if (typeof module === 'object' && module.exports) {
 		// Node. Does not work with strict CommonJS, but
 		// only CommonJS-like environments that support module.exports,
 		// like Node.
-		module.exports = factory(require('on'));
+		module.exports = factory(require('@clubajax/on'));
 	} else {
 		// Browser globals (root is window)
 		root.returnExports = factory();
@@ -37,7 +37,7 @@
 				},
 				destroy: function () {
 					select();
-					highlight();
+					unhighlight();
 					this.handles.forEach(function (h) { h.remove(); });
 					if (observer) {
 						observer.disconnect();
@@ -60,11 +60,15 @@
 			highlighted = highlight(fromArray(selected)),
 			nodeType = (highlighted || children[0]).localName;
 
-		function highlight (node) {
-			node = fromArray(node);
+		function unhighlight () {
 			if (highlighted) {
 				highlighted.removeAttribute('highlighted');
 			}
+		}
+
+		function highlight (node) {
+			node = fromArray(node);
+			unhighlight();
 			if (!node) {
 				node = children[0];
 			}

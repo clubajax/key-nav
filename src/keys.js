@@ -45,7 +45,7 @@
 				}
 			},
 			tableMode = listNode.localName === 'table',
-			inputMode = options.inputMode,
+			inputMode = options.inputMode, // not used???
 			canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
 			shift = false,
 			meta = false,
@@ -179,7 +179,6 @@
 
 					case 'ArrowDown':
 						if (tableMode) {
-							console.log('table!');
 							highlight(getCell(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
@@ -198,7 +197,6 @@
 
 					case 'ArrowUp':
 						if (tableMode) {
-							console.log('table!');
 							highlight(getCell(children, highlighted || selected, 'up'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							e.preventDefault();
@@ -218,7 +216,7 @@
 					default:
 						// the event is not handled
 						if (on.isAlphaNumeric(e.key)) {
-							if (e.key == 'r' && meta) {
+							if (e.key === 'r' && meta) {
 								return true;
 							}
 							searchString += e.key;
