@@ -23,7 +23,6 @@
 		// TODO options:
 		// search an option and/or a function?
 		// space select an option?
-		// add aria
 
 		var
 			controller = {
@@ -162,6 +161,7 @@
 				}
 			}),
 			on(document, 'keydown', function (e) {
+				console.log('key', e.key);
 				if (e.defaultPrevented) {
 					return;
 				}
@@ -294,8 +294,8 @@
 				break;
 			}
 			if (norecurse-- < 0) {
-				console.log('RECURSE');
-				break;
+				console.log('recurse');
+				return getFirstElligible(children);
 			}
 		}
 		return node;
@@ -314,8 +314,8 @@
 				break;
 			}
 			if (norecurse-- < 0) {
-				console.log('RECURSE');
-				break;
+				console.log('recurse');
+				return getLastElligible(children);
 			}
 		}
 		return node;
@@ -325,21 +325,40 @@
 		return node.style.display !== 'none' && node.offsetHeight && node.offsetWidth;
 	}
 
+	function getFirstElligible (children) {
+		for (var i = 0; i < children.length; i++) {
+			if (isElligible(children, i)) {
+				return children[i];
+			}
+		}
+		return null;
+	}
+
+	function getLastElligible (children) {
+		for (var i = children.length - 1; i >= 0 ; i--) {
+			if (isElligible(children, i)) {
+				return children[i];
+			}
+		}
+		return null;
+	}
+
 	function isElligible (children, index) {
 		return children[index] && !children[index].parentNode.disabled && isVisible(children[index]);
 	}
 
 	function getNode (children, highlighted, dir) {
-		var i;
-		for (i = 0; i < children.length; i++) {
+		var index = 0;
+		for (var i = 0; i < children.length; i++) {
 			if (children[i] === highlighted) {
+				index = i;
 				break;
 			}
 		}
 		if (dir === 'down') {
-			return getNext(children, i);
+			return getNext(children, index);
 		} else if (dir === 'up') {
-			return getPrev(children, i);
+			return getPrev(children, index);
 		}
 	}
 
