@@ -3,7 +3,7 @@
 <head>
     <title>Test keys</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
-    <script src="../bower_components/on/dist/on.js"></script>
+    <script src="../node_modules/@clubajax/on/dist/on.js"></script>
     <script src="../src/keys.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
@@ -104,7 +104,7 @@
                 }
             }
 
-            xsuite('arrow keys', function () {
+            suite('arrow keys', function () {
                 test('it should select and highlight the first item by default', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -112,6 +112,7 @@
                     expect(node.querySelector('[highlighted]')).to.equal(node.children[0]);
                     controller.destroy();
                 });
+
                 test('it should unselect and unhighlight when destroyed', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -120,6 +121,7 @@
                     expect(node.querySelector('[highlighted]')).to.equal(null);
                     // already destroyed
                 });
+
                 test('it should highlight, but not select, the next node on arrow down', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -128,6 +130,7 @@
                     expect(node.querySelector('[highlighted]')).to.equal(node.children[1]);
                     controller.destroy();
                 });
+
                 test('it should select on Enter', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -138,6 +141,7 @@
                     expect(node.querySelector('[selected]')).to.equal(node.children[1]);
                     controller.destroy();
                 });
+
                 test('it should highlight the last node on arrow up', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -151,7 +155,7 @@
 
             });
 
-            xsuite('click', function () {
+            suite('click', function () {
                 test('it should highlight and select on click', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -162,7 +166,7 @@
                 });
             });
 
-            xsuite('search', function () {
+            suite('search', function () {
                 test('it should select a node on alpha input', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -182,7 +186,7 @@
                 });
             });
 
-            xsuite('programmatic', function () {
+            suite('programmatic', function () {
                 test('it should select a node with setSelected()', function () {
                     var node = byId('list'),
                         controller = keys(node);
@@ -193,7 +197,7 @@
                 });
             });
 
-            xsuite('roles', function () {
+            suite('roles', function () {
                 test('it should add roles to children if in options', function () {
                     var node = byId('list'),
                         controller = keys(node, {roles:true});
@@ -216,7 +220,7 @@
                 });
             });
 
-            xsuite('multi-select', function () {
+            suite('multi-select', function () {
                 test('it should select multiple on control-click', function () {
                     var node = byId('list'),
                         controller = keys(node, {multiple:true});
@@ -248,11 +252,11 @@
                     on.emit(node.children[1], 'click');
                     expect(node.querySelectorAll('[selected]').length).to.equal(3);
                     on.emit(document, 'keyup');
-                    //controller.destroy();
+                    controller.destroy();
                 });
             });
 
-            xsuite('selection', function () {
+            suite('selection', function () {
                 test('it should default to the first item selected', function () {
                     var node = byId('list'),
                         controller = keys(node, {}),

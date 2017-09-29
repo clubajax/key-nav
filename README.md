@@ -4,7 +4,7 @@ Make a list of items keyboard navigable, using arrow, enter, escape and search k
 
 ## To Install
 
-    bower install clubajax/key-nav --save
+    npm install @clubajax/key-nav --save
     
 key-nav has a dependency on clubajax/on
 
