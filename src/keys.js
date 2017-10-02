@@ -161,7 +161,6 @@
 				}
 			}),
 			on(document, 'keydown', function (e) {
-				console.log('key', e.key);
 				if (e.defaultPrevented) {
 					return;
 				}
