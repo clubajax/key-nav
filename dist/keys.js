@@ -23,7 +23,6 @@
 		// TODO options:
 		// search an option and/or a function?
 		// space select an option?
-		// add aria
 
 		var
 			controller = {
@@ -45,7 +44,7 @@
 				}
 			},
 			tableMode = listNode.localName === 'table',
-			inputMode = options.inputMode,
+			inputMode = options.inputMode, // not used???
 			canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
 			shift = false,
 			meta = false,
@@ -70,6 +69,9 @@
 			node = fromArray(node);
 			unhighlight();
 			if (!node) {
+				if (!children[0]) {
+					return;
+				}
 				node = children[0];
 			}
 			highlighted = node;
@@ -179,7 +181,6 @@
 
 					case 'ArrowDown':
 						if (tableMode) {
-							console.log('table!');
 							highlight(getCell(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
@@ -198,7 +199,6 @@
 
 					case 'ArrowUp':
 						if (tableMode) {
-							console.log('table!');
 							highlight(getCell(children, highlighted || selected, 'up'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							e.preventDefault();
@@ -218,7 +218,7 @@
 					default:
 						// the event is not handled
 						if (on.isAlphaNumeric(e.key)) {
-							if (e.key == 'r' && meta) {
+							if (e.key === 'r' && meta) {
 								return true;
 							}
 							searchString += e.key;
@@ -296,8 +296,8 @@
 				break;
 			}
 			if (norecurse-- < 0) {
-				console.log('RECURSE');
-				break;
+				console.log('recurse');
+				return getFirstElligible(children);
 			}
 		}
 		return node;
@@ -316,8 +316,8 @@
 				break;
 			}
 			if (norecurse-- < 0) {
-				console.log('RECURSE');
-				break;
+				console.log('recurse');
+				return getLastElligible(children);
 			}
 		}
 		return node;
@@ -327,21 +327,40 @@
 		return node.style.display !== 'none' && node.offsetHeight && node.offsetWidth;
 	}
 
+	function getFirstElligible (children) {
+		for (var i = 0; i < children.length; i++) {
+			if (isElligible(children, i)) {
+				return children[i];
+			}
+		}
+		return null;
+	}
+
+	function getLastElligible (children) {
+		for (var i = children.length - 1; i >= 0 ; i--) {
+			if (isElligible(children, i)) {
+				return children[i];
+			}
+		}
+		return null;
+	}
+
 	function isElligible (children, index) {
 		return children[index] && !children[index].parentNode.disabled && isVisible(children[index]);
 	}
 
 	function getNode (children, highlighted, dir) {
-		var i;
-		for (i = 0; i < children.length; i++) {
+		var index = 0;
+		for (var i = 0; i < children.length; i++) {
 			if (children[i] === highlighted) {
+				index = i;
 				break;
 			}
 		}
 		if (dir === 'down') {
-			return getNext(children, i);
+			return getNext(children, index);
 		} else if (dir === 'up') {
-			return getPrev(children, i);
+			return getPrev(children, index);
 		}
 	}
 

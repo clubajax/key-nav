@@ -69,6 +69,9 @@
 			node = fromArray(node);
 			unhighlight();
 			if (!node) {
+				if (!children[0]) {
+					return;
+				}
 				node = children[0];
 			}
 			highlighted = node;
