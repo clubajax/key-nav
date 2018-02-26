@@ -395,8 +395,9 @@
 	}
 
 	function searchHtmlContent (children, str) {
+		str = str.toLowerCase();
 		for (var i = 0; i < children.length; i++) {
-			if (children[i].innerHTML.indexOf(str) === 0) {
+			if (children[i].innerHTML.toLowerCase().indexOf(str) === 0) {
 				return children[i];
 			}
 		}
