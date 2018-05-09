@@ -120,10 +120,9 @@
 		}
 
 		function scrollTo () {
-			console.log('scroll');
-			const top = highlighted.offsetTop;
-			const height = highlighted.offsetHeight;
-			const listHeight = listNode.offsetHeight;
+			var top = highlighted.offsetTop;
+			var height = highlighted.offsetHeight;
+			var listHeight = listNode.offsetHeight;
 
 			if (top - height < listNode.scrollTop) {
 				listNode.scrollTop = top - height;
@@ -196,7 +195,6 @@
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
 						} else if (inputMode) {
-							console.log('input');
 							highlight(getNode(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
@@ -287,7 +285,7 @@
 		controller.resume = function () {
 			scrollTo();
 			controller._resume();
-		}
+		};
 
 		return controller;
 	}
