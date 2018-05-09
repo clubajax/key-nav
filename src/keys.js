@@ -15,7 +15,6 @@
 }(this, function (on) {
 
 	'use strict';
-
 	function keys (listNode, options) {
 
 		options = options || {};
@@ -120,9 +119,20 @@
 			return selected;
 		}
 
+		function scrollTo () {
+			const top = highlighted.offsetTop;
+			const height = highlighted.offsetHeight;
+			const listHeight = listNode.offsetHeight;
+
+			if (top - height < listNode.scrollTop) {
+				listNode.scrollTop = top - height;
+			} else if (top + height * 2 > listNode.scrollTop + listHeight) {
+				listNode.scrollTop = top - listHeight + height * 2;
+			}
+		}
+
 		on.fire(listNode, 'key-highlight', { value: highlighted });
 		on.fire(listNode, 'key-select', { value: highlighted });
-
 		controller.handles = [
 			on(listNode, 'mouseover', nodeType, function (e, node) {
 				highlight(node);
@@ -185,9 +195,11 @@
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
 						} else if (inputMode) {
+							console.log('input');
 							highlight(getNode(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
+						scrollTo();
 						e.preventDefault();
 					// fallthrough
 					case 'ArrowRight':
@@ -207,6 +219,7 @@
 							highlight(getNode(children, highlighted || selected, 'up'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
+						scrollTo();
 						e.preventDefault();
 					//fallthrough
 					case 'ArrowLeft':
@@ -225,6 +238,7 @@
 							var searchNode = searchHtmlContent(children, searchString);
 							if (searchNode) {
 								highlight(select(searchNode));
+								scrollTo();
 							}
 
 							clearTimeout(searchStringTimer);

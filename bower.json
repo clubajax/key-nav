@@ -1,6 +1,6 @@
 {
   "name": "key-nav",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
   "main": "src/keys.js",
   "authors": [
