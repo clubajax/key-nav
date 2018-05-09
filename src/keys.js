@@ -120,6 +120,7 @@
 		}
 
 		function scrollTo () {
+			console.log('scroll');
 			const top = highlighted.offsetTop;
 			const height = highlighted.offsetHeight;
 			const listHeight = listNode.offsetHeight;
@@ -274,10 +275,20 @@
 			}
 		}
 
+		scrollTo();
+
 		multiHandle = on.makeMultiHandle(controller.handles);
 		Object.keys(multiHandle).forEach(function (key) {
 			controller[key] = multiHandle[key];
 		});
+
+		controller._resume = controller.resume;
+
+		controller.resume = function () {
+			scrollTo();
+			controller._resume();
+		}
+
 		return controller;
 	}
 
