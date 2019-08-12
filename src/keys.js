@@ -23,7 +23,7 @@
 		// search an option and/or a function?
 		// space select an option?
 
-		var
+		const
 			controller = {
 				log: false,
 				setSelected: function (node) {
@@ -46,19 +46,25 @@
 			},
 			tableMode = listNode.localName === 'table',
 			canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
-			shift = false,
-			meta = false,
-			multiHandle,
-            observer,
             multiple = options.multiple,
-			searchString = '',
-			searchStringTimer,
 			searchStringTime = options.searchTime || 1000,
 			// children is a live NodeList, so the reference will update if nodes are added or removed
-			children = tableMode ? listNode.querySelectorAll('td') : listNode.children,
-			selected = select(getSelected(children, options.noDefault)),
-			highlighted = highlight(fromArray(selected)),
-			nodeType = (highlighted || children[0]).localName;
+			children = tableMode ? listNode.querySelectorAll('td') : listNode.children;
+        
+        let
+            shift = false,
+            meta = false,
+            multiHandle,
+            observer,
+            searchString = '',
+            searchStringTimer,
+            selected,
+            highlighted;
+        
+        selected = select(getSelected(children, options.noDefault)),
+        highlighted = highlight(fromArray(selected));
+        
+        const nodeType = (highlighted || children[0]).localName;
 
 		function unhighlight () {
             if (highlighted) {
@@ -70,10 +76,7 @@
 
 		function highlight (node) {
             node = fromArray(node);
-            console.log('hilite (multiple, shift, meta)', multiple, shift, meta);
-            // if (!multiple || (!shift && !meta)) {
-                unhighlight(); // if multiple and !shift and !control
-            // }
+            unhighlight(); 
 			if (!node) {
 				if (!children[0]) {
 					return;
@@ -131,9 +134,9 @@
 		}
 
 		function scrollTo () {
-			var top = highlighted.offsetTop;
-			var height = highlighted.offsetHeight;
-			var listHeight = listNode.offsetHeight;
+			let top = highlighted.offsetTop;
+			let height = highlighted.offsetHeight;
+			let listHeight = listNode.offsetHeight;
 
 			if (top - height < listNode.scrollTop) {
 				listNode.scrollTop = top - height;
@@ -158,7 +161,6 @@
 			// 	on.fire(listNode, 'key-highlight', { value: null });
 			// }),
             on(listNode, 'click', nodeType, function (e, node) {
-                console.log('click...');
 				highlight(node);
 				select(node);
 				on.fire(listNode, 'key-select', { value: selected });
@@ -246,7 +248,7 @@
 								return true;
 							}
 							searchString += e.key;
-							var searchNode = searchHtmlContent(children, searchString);
+							let searchNode = searchHtmlContent(children, searchString);
 							if (searchNode) {
 								highlight(select(searchNode));
 								scrollTo();
@@ -308,7 +310,7 @@
 	}
 
 	function getSelected (children, noDefault) {
-		for (var i = 0; i < children.length; i++) {
+		for (let i = 0; i < children.length; i++) {
 			if (isSelected(children[i])) {
 				return children[i];
 			}
@@ -317,7 +319,7 @@
 	}
 
 	function getNext (children, index) {
-		var
+		let
 			norecurse = children.length + 2,
 			node = children[index];
 		while (node) {
@@ -337,7 +339,7 @@
 	}
 
 	function getPrev (children, index) {
-		var
+		let
 			norecurse = children.length + 2,
 			node = children[index];
 		while (node) {
@@ -361,7 +363,7 @@
 	}
 
 	function getFirstElligible (children) {
-		for (var i = 0; i < children.length; i++) {
+		for (let i = 0; i < children.length; i++) {
 			if (isElligible(children, i)) {
 				return children[i];
 			}
@@ -370,7 +372,7 @@
 	}
 
 	function getLastElligible (children) {
-		for (var i = children.length - 1; i >= 0 ; i--) {
+		for (let i = children.length - 1; i >= 0 ; i--) {
 			if (isElligible(children, i)) {
 				return children[i];
 			}
@@ -383,8 +385,8 @@
 	}
 
 	function getNode (children, highlighted, dir) {
-		var index = 0;
-		for (var i = 0; i < children.length; i++) {
+		let index = 0;
+		for (let i = 0; i < children.length; i++) {
 			if (children[i] === highlighted) {
 				index = i;
 				break;
@@ -398,7 +400,7 @@
 	}
 
 	function getCell (children, highlighted, dir) {
-		var
+		let
 			cellIndex = getIndex(highlighted),
 			row = highlighted.parentNode,
 			rowIndex = getIndex(row),
@@ -418,7 +420,7 @@
 	}
 
 	function getIndex (el) {
-		var i, p = el.parentNode;
+		let i, p = el.parentNode;
 		for (i = 0; i < p.children.length; i++) {
 			if (p.children[i] === el) {
 				return i;
@@ -429,7 +431,7 @@
 
 	function searchHtmlContent (children, str) {
 		str = str.toLowerCase();
-		for (var i = 0; i < children.length; i++) {
+		for (let i = 0; i < children.length; i++) {
 			if (children[i].innerHTML.toLowerCase().indexOf(str) === 0) {
 				return children[i];
 			}
@@ -438,7 +440,7 @@
 	}
 
 	function findShiftNodes (children, selected, node) {
-		var i, a, b, c, lastNode = selected[selected.length - 1], newIndex, lastIndex, selection = [];
+		let i, a, b, c, lastNode = selected[selected.length - 1], newIndex, lastIndex, selection = [];
 		selected.forEach(function (sel) {
 			sel.removeAttribute('aria-selected');
 		});
@@ -468,7 +470,7 @@
 
 	function addRoles (node) {
 		// https://www.w3.org/TR/wai-aria/roles#listbox
-		for (var i = 0; i < node.children.length; i++) {
+		for (let i = 0; i < node.children.length; i++) {
 			node.children[i].setAttribute('role', 'listitem');
 		}
 		node.setAttribute('role', 'listbox');
