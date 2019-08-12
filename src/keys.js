@@ -33,7 +33,9 @@
 				getSelected: function () {
 					return selected;
 				},
-				destroy: function () {
+                destroy: function () {
+                    shift = false;
+                    meta = false;
 					select();
 					unhighlight();
 					this.handles.forEach(function (h) { h.remove(); });
@@ -47,7 +49,8 @@
 			shift = false,
 			meta = false,
 			multiHandle,
-			observer,
+            observer,
+            multiple = options.multiple,
 			searchString = '',
 			searchStringTimer,
 			searchStringTime = options.searchTime || 1000,
@@ -66,8 +69,11 @@
 		}
 
 		function highlight (node) {
-			node = fromArray(node);
-			unhighlight(); // if multiple and !shift and !control
+            node = fromArray(node);
+            console.log('hilite (multiple, shift, meta)', multiple, shift, meta);
+            // if (!multiple || (!shift && !meta)) {
+                unhighlight(); // if multiple and !shift and !control
+            // }
 			if (!node) {
 				if (!children[0]) {
 					return;
@@ -82,23 +88,25 @@
 		}
 
 		function select (node) {
-			if (options.multiple) {
-				if (selected) {
-					if (!shift && !meta) {
-						selected.forEach(function (sel) {
+            if (multiple) {
+                if (selected) {
+                    if (!shift && !meta) {
+                        selected.forEach(function (sel) {
                             sel.removeAttribute('aria-selected');
 						});
-
+                        selected = null;
 						if (node) {
 							selected = [node];
 							node.setAttribute('aria-selected', 'true');
 						}
 					}
-					else if (shift && node) {
-						selected = findShiftNodes(children, selected, node);
+                    else if (shift && node) {
+                        selected = findShiftNodes(children, selected, node);
+                        selected.forEach(function (sel) {
+                            sel.setAttribute('aria-selected', 'true');
+                        });
 					}
 					else if (meta && node) {
-
 						if (!selected) {
 							selected = [node];
 						} else {
@@ -111,7 +119,7 @@
 				}
 
 			} else {
-				if (selected) {
+                if (selected) {
                     selected.removeAttribute('aria-selected');
 				}
 				if (node) {
@@ -149,7 +157,8 @@
 			// 	highlight(null);
 			// 	on.fire(listNode, 'key-highlight', { value: null });
 			// }),
-			on(listNode, 'click', nodeType, function (e, node) {
+            on(listNode, 'click', nodeType, function (e, node) {
+                console.log('click...');
 				highlight(node);
 				select(node);
 				on.fire(listNode, 'key-select', { value: selected });
@@ -295,7 +304,7 @@
 		if (!node) {
 			return false;
 		}
-		return node.selected || node.hasAttribute('selected');
+		return node.selected || node.hasAttribute('aria-selected');
 	}
 
 	function getSelected (children, noDefault) {
@@ -431,7 +440,7 @@
 	function findShiftNodes (children, selected, node) {
 		var i, a, b, c, lastNode = selected[selected.length - 1], newIndex, lastIndex, selection = [];
 		selected.forEach(function (sel) {
-			sel.removeAttribute('selected');
+			sel.removeAttribute('aria-selected');
 		});
 		for (i = 0; i < children.length; i++) {
 			c = children[i];
@@ -450,10 +459,10 @@
 		}
 
 		while (a <= b) {
-			children[a].setAttribute('selected', '');
+			children[a].setAttribute('aria-selected', '');
 			selection.push(children[a]);
 			a++;
-		}
+        }
 		return selection;
 	}
 

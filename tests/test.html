@@ -244,13 +244,14 @@
                     controller.destroy();
                 });
 
-                test.only('it should select multiple on shift-click (select upward)', function () {
+                test('it should select multiple on shift-click (select upward)', function () {
                     var node = byId('list'),
                         controller = keys(node, {multiple:true});
                     on.emit(node.children[3], 'click');
                     on.emit(document, 'keydown', {key:'Shift'});
                     on.emit(node.children[1], 'click');
                     expect(node.querySelectorAll('[aria-selected]').length).to.equal(3);
+                    console.log(node.querySelectorAll('[aria-selected]'));
                     on.emit(document, 'keyup');
                     controller.destroy();
                 });
@@ -299,10 +300,10 @@
             });
 
             suite('table', function () {
-                test('it should navigate a table', function () {
+                test.only('it should navigate a table', function () {
                     var
                         sel = function (node) {
-                            return node.hasAttribute('selected');
+                            return node.hasAttribute('aria-selected');
                         },
                         hi = function (node) {
                             return node.hasAttribute('aria-current');
