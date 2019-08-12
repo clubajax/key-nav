@@ -51,6 +51,7 @@
 <body>
     <h1>keys test</h1>
     <div id="mocha"></div>
+    <input />
     <ol id="list" tabindex="0">
         <li>uno</li>
         <li>dos</li>
@@ -82,7 +83,10 @@
                 test = window.test,
                 dom = window.dom,
                 on = window.on,
-                expect = chai.expect;
+                expect = chai.expect,
+                EVENTS = {
+                    CLICK: 'mousedown'
+                };
 
 
             function xsuite () {}
@@ -156,11 +160,11 @@
 
             });
 
-            suite('click', function () {
+            suite(EVENTS.CLICK, function () {
                 test('it should highlight and select on click', function () {
                     const node = byId('list'),
                         controller = keys(node);
-                    on.emit(node.children[2], 'click');
+                    on.emit(node.children[2], EVENTS.CLICK);
                     expect(node.querySelector('[aria-selected]')).to.equal(node.children[2]);
                     expect(node.querySelector('[aria-current]')).to.equal(node.children[2]);
                     controller.destroy();
@@ -225,9 +229,9 @@
                 test('it should select multiple on control-click', function () {
                     const node = byId('list'),
                         controller = keys(node, {multiple:true});
-                    on.emit(node.children[2], 'click');
+                    on.emit(node.children[2], EVENTS.CLICK);
                     on.emit(document, 'keydown', {key:'Meta'});
-                    on.emit(node.children[3], 'click');
+                    on.emit(node.children[3], EVENTS.CLICK);
 
                     expect(node.querySelectorAll('[aria-selected]').length).to.equal(2);
                     controller.destroy();
@@ -237,9 +241,9 @@
                 test('it should select multiple on shift-click', function () {
                     const node = byId('list'),
                         controller = keys(node, {multiple:true});
-                    on.emit(node.children[1], 'click');
+                    on.emit(node.children[1], EVENTS.CLICK);
                     on.emit(document, 'keydown', {key:'Shift'});
-                    on.emit(node.children[3], 'click');
+                    on.emit(node.children[3], EVENTS.CLICK);
                     expect(node.querySelectorAll('[aria-selected]').length).to.equal(3);
                     on.emit(document, 'keyup');
                     controller.destroy();
@@ -248,9 +252,9 @@
                 test('it should select multiple on shift-click (select upward)', function () {
                     const node = byId('list'),
                         controller = keys(node, {multiple:true});
-                    on.emit(node.children[3], 'click');
+                    on.emit(node.children[3], EVENTS.CLICK);
                     on.emit(document, 'keydown', {key:'Shift'});
-                    on.emit(node.children[1], 'click');
+                    on.emit(node.children[1], EVENTS.CLICK);
                     expect(node.querySelectorAll('[aria-selected]').length).to.equal(3);
                     on.emit(document, 'keyup');
                     controller.destroy();
@@ -324,7 +328,14 @@
                     expect(hi(cells[21])).to.equal(true);
                     on.emit(node, 'keydown', {key:'Enter'});
                     expect(sel(cells[21])).to.equal(true);
-                    //controller.destroy();
+                    controller.destroy();
+                });
+            });
+
+            suite('manual', function () {
+                test('it turns controllers on', function () {
+                    keys(byId('list'), {multiple: true});
+                    // keys(byId('table'));
                 });
             });
         });

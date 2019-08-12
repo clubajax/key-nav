@@ -90,7 +90,7 @@
 			return highlighted;
 		}
 
-		function select (node) {
+		function select (node, keyboardMode) {
             if (multiple) {
                 if (selected) {
                     if (!shift && !meta) {
@@ -104,7 +104,11 @@
 						}
 					}
                     else if (shift && node) {
-                        selected = findShiftNodes(children, selected, node);
+                        if (keyboardMode && selected) {
+                            selected.push(node);
+                        } else {
+                            selected = findShiftNodes(children, selected, node);
+                        }
                         selected.forEach(function (sel) {
                             sel.setAttribute('aria-selected', 'true');
                         });
@@ -148,29 +152,18 @@
 		on.fire(listNode, 'key-highlight', { value: highlighted });
 		on.fire(listNode, 'key-select', { value: highlighted });
 		controller.handles = [
-			// on(listNode, 'mouseover', nodeType, function (e, node) {
-			// 	highlight(node);
-			// 	on.fire(listNode, 'key-highlight', { value: highlighted });
-			// }),
-			// on(listNode, 'mouseout', function (e) {
-			// 	highlight(null);
-			// 	on.fire(listNode, 'key-highlight', { value: null });
-			// }),
-			// on(listNode, 'blur', function (e) {
-			// 	highlight(null);
-			// 	on.fire(listNode, 'key-highlight', { value: null });
-			// }),
-            on(listNode, 'click', nodeType, function (e, node) {
+            on(listNode, 'mousedown', nodeType, function (e, node) {
 				highlight(node);
 				select(node);
-				on.fire(listNode, 'key-select', { value: selected });
+                on.fire(listNode, 'key-select', {value: selected});
+                e.preventDefault();
 			}),
 			on(document, 'keyup', function (e) {
 				if (e.defaultPrevented) {
 					return;
 				}
-				shift = false;
-				meta = false;
+				shift = e.shiftKey;
+                meta = false;
 			}),
 			on(document, 'keydown', function (e) {
 				if (e.defaultPrevented) {
@@ -208,8 +201,12 @@
 							highlight(getCell(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
-						} else {
-							highlight(getNode(children, highlighted || selected, 'down'));
+                        } else {
+                            const node = getNode(children, highlighted || selected, 'down');
+                            highlight(node);
+                            if (multiple && (shift || meta)) {
+                                select(node, true);
+                            }
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
 						scrollTo();
@@ -228,9 +225,14 @@
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							e.preventDefault();
 							break;
-						} else {
-							highlight(getNode(children, highlighted || selected, 'up'));
-							on.fire(listNode, 'key-highlight', { value: highlighted });
+                        } else {
+                            
+                            const node = getNode(children, highlighted || selected, 'up');
+                            highlight(node);
+                            if (multiple && (shift || meta)) {
+                                select(node, true);
+                            }
+                            on.fire(listNode, 'key-highlight', {value: highlighted});
 						}
 						scrollTo();
 						e.preventDefault();

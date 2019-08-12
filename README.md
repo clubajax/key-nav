@@ -16,20 +16,19 @@ The children are a live NodeList, so any references will update if nodes are add
 
     npm install @clubajax/key-nav --save
     
-key-nav has a dependency on clubajax/on
+key-nav has a dependency on [clubajax/on](https://github.com/clubajax/on).
 
 ## Support
 
-`key-nav` uses ES5 (not ES6), so it is compatible with all browsers, IE9 and above. Note that testing is only done on 
-IE11.
+`key-nav` uses ES5 (not ES6), so it is compatible with all browsers, IE11 and above.
 
 This library uses UMD, so it should work in any framework.
 
 ## Changes
 
 As of version 2, key-nav is a11y. 
- * Instead of a `.highlighted` class, the node is focused.
- * Instead of, the attribute `aria-selected="true"`, it is now: `aria-selected="true"`;
+ * Instead of a `.highlighted` class, the node is focused, adding: `tab-index=-1` and `aria-current="true"`.
+ * Instead of, the attribute `selected="true"`, it is now: `aria-selected="true"`;
 
 ## Usage
 
@@ -56,13 +55,13 @@ var selectedChild = controller.getSelected();
 
 The following attributes are added to children, depending upon their state:
 
- * `highlighted` - The child has enter a mouseover state, or has been navigated to with an Arrow key.
- * `selected` - The child has been clicked upon, or ha been selected with the Enter key. 
+ * `aria-current` - The child has enter a mouseover state, or has been navigated to with an Arrow key.
+ * `aria-selected` - The child has been clicked upon, or ha been selected with the Enter key. 
 
 The following custom events are fired from the listNode:
 
  * `key-highlight` - The child has enter a mouseover state, or has been navigated to with an Arrow key.
- * `key-select` - The child has been clicked upon, or ha been selected with the Enter key. 
+ * `key-select` - The child has been clicked upon, or has been selected with the Enter key. 
 
 ## Options
 
