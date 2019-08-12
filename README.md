@@ -25,6 +25,12 @@ IE11.
 
 This library uses UMD, so it should work in any framework.
 
+## Changes
+
+As of version 2, key-nav is a11y. 
+ * Instead of a `.highlighted` class, the node is focused.
+ * Instead of, the attribute `aria-selected="true"`, it is now: `aria-selected="true"`;
+
 ## Usage
 
 Including `key-nav` in your code will return a `keys` function.

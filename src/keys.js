@@ -43,7 +43,6 @@
 				}
 			},
 			tableMode = listNode.localName === 'table',
-			inputMode = options.inputMode, // not used???
 			canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
 			shift = false,
 			meta = false,
@@ -59,22 +58,26 @@
 			nodeType = (highlighted || children[0]).localName;
 
 		function unhighlight () {
-			if (highlighted) {
-				highlighted.removeAttribute('highlighted');
+            if (highlighted) {
+                highlighted.removeAttribute('tab-index');
+                highlighted.removeAttribute('aria-current');
+				highlighted.blur();
 			}
 		}
 
 		function highlight (node) {
 			node = fromArray(node);
-			unhighlight();
+			unhighlight(); // if multiple and !shift and !control
 			if (!node) {
 				if (!children[0]) {
 					return;
 				}
 				node = children[0];
 			}
-			highlighted = node;
-			highlighted.setAttribute('highlighted', 'true');
+            highlighted = node;
+            highlighted.setAttribute('tab-index', "-1");
+            highlighted.setAttribute('aria-current', "true");
+			highlighted.focus();
 			return highlighted;
 		}
 
@@ -83,12 +86,12 @@
 				if (selected) {
 					if (!shift && !meta) {
 						selected.forEach(function (sel) {
-							sel.removeAttribute('selected');
+                            sel.removeAttribute('aria-selected');
 						});
 
 						if (node) {
 							selected = [node];
-							node.setAttribute('selected', 'true');
+							node.setAttribute('aria-selected', 'true');
 						}
 					}
 					else if (shift && node) {
@@ -101,7 +104,7 @@
 						} else {
 							selected.push(node);
 						}
-						node.setAttribute('selected', 'true');
+                        node.setAttribute('aria-selected', 'true');
 					}
 				} else {
 					selected = [node];
@@ -109,11 +112,11 @@
 
 			} else {
 				if (selected) {
-					selected.removeAttribute('selected');
+                    selected.removeAttribute('aria-selected');
 				}
 				if (node) {
 					selected = node;
-					selected.setAttribute('selected', 'true');
+                    selected.setAttribute('aria-selected', 'true');
 				}
 			}
 			return selected;
@@ -134,18 +137,18 @@
 		on.fire(listNode, 'key-highlight', { value: highlighted });
 		on.fire(listNode, 'key-select', { value: highlighted });
 		controller.handles = [
-			on(listNode, 'mouseover', nodeType, function (e, node) {
-				highlight(node);
-				on.fire(listNode, 'key-highlight', { value: highlighted });
-			}),
-			on(listNode, 'mouseout', function (e) {
-				highlight(null);
-				on.fire(listNode, 'key-highlight', { value: null });
-			}),
-			on(listNode, 'blur', function (e) {
-				highlight(null);
-				on.fire(listNode, 'key-highlight', { value: null });
-			}),
+			// on(listNode, 'mouseover', nodeType, function (e, node) {
+			// 	highlight(node);
+			// 	on.fire(listNode, 'key-highlight', { value: highlighted });
+			// }),
+			// on(listNode, 'mouseout', function (e) {
+			// 	highlight(null);
+			// 	on.fire(listNode, 'key-highlight', { value: null });
+			// }),
+			// on(listNode, 'blur', function (e) {
+			// 	highlight(null);
+			// 	on.fire(listNode, 'key-highlight', { value: null });
+			// }),
 			on(listNode, 'click', nodeType, function (e, node) {
 				highlight(node);
 				select(node);
@@ -194,7 +197,7 @@
 							highlight(getCell(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
-						} else if (inputMode) {
+						} else {
 							highlight(getNode(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
@@ -202,7 +205,7 @@
 						e.preventDefault();
 					// fallthrough
 					case 'ArrowRight':
-						if (!inputMode) {
+                        if (tableMode) {
 							highlight(getNode(children, highlighted || selected, 'down'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
@@ -214,7 +217,7 @@
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 							e.preventDefault();
 							break;
-						} else if (inputMode) {
+						} else {
 							highlight(getNode(children, highlighted || selected, 'up'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
@@ -222,7 +225,7 @@
 						e.preventDefault();
 					//fallthrough
 					case 'ArrowLeft':
-						if (!inputMode) {
+						if (tableMode) {
 							highlight(getNode(children, highlighted || selected, 'up'));
 							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
@@ -249,8 +252,6 @@
 						}
 						return;
 				}
-				//e.preventDefault();
-				//return false;
 			}),
 			{
 				pause: function () { if(controller.log) {console.log('pause');} },

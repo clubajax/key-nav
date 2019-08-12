@@ -22,19 +22,19 @@
             list-style: none;
             padding: 3px;
         }
-        li[highlighted],
-        td[highlighted]{
+        li[aria-current],
+        td[aria-current]{
             background: #eee;
         }
-        li[selected],
-        td[selected]{
+        li[aria-selected],
+        td[aria-selected]{
             background: #333;
             color: white;
         }
-        tr[highlighted]{
+        tr[aria-current]{
             background: #ff9295;
         }
-        tr[selected]{
+        tr[aria-selected]{
             background: red;
         }
         table{
@@ -108,8 +108,8 @@
                 test('it should select and highlight the first item by default', function () {
                     var node = byId('list'),
                         controller = keys(node);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[0]);
                     controller.destroy();
                 });
 
@@ -117,8 +117,8 @@
                     var node = byId('list'),
                         controller = keys(node);
                     controller.destroy();
-                    expect(node.querySelector('[selected]')).to.equal(null);
-                    expect(node.querySelector('[highlighted]')).to.equal(null);
+                    expect(node.querySelector('[aria-selected]')).to.equal(null);
+                    expect(node.querySelector('[aria-current]')).to.equal(null);
                     // already destroyed
                 });
 
@@ -126,8 +126,8 @@
                     var node = byId('list'),
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[1]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[1]);
                     controller.destroy();
                 });
 
@@ -135,10 +135,10 @@
                     var node = byId('list'),
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[1]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[1]);
                     on.emit(node, 'keydown', {key: 'Enter'}, true);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[1]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[1]);
                     controller.destroy();
                 });
 
@@ -146,10 +146,10 @@
                     var node = byId('list'),
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 'ArrowUp'}, true);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[0]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[node.children.length-1]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[node.children.length-1]);
                     on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[0]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[0]);
                     controller.destroy();
                 });
 
@@ -160,8 +160,8 @@
                     var node = byId('list'),
                         controller = keys(node);
                     on.emit(node.children[2], 'click');
-                    expect(node.querySelector('[selected]')).to.equal(node.children[2]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[2]);
                     controller.destroy();
                 });
             });
@@ -171,8 +171,8 @@
                     var node = byId('list'),
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 't'}, true);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[2]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[2]);
                     controller.destroy();
                 });
                 test('it should select a different node on two alpha inputs', function () {
@@ -180,8 +180,8 @@
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 'c'}, true);
                     on.emit(node, 'keydown', {key: 'i'}, true);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[4]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[4]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[4]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[4]);
                     controller.destroy();
                 });
             });
@@ -191,8 +191,8 @@
                     var node = byId('list'),
                         controller = keys(node);
                     controller.setSelected(node.children[2]);
-                    expect(node.querySelector('[selected]')).to.equal(node.children[2]);
-                    expect(node.querySelector('[highlighted]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[2]);
+                    expect(node.querySelector('[aria-current]')).to.equal(node.children[2]);
                     controller.destroy();
                 });
             });
@@ -228,7 +228,7 @@
                     on.emit(document, 'keydown', {key:'Meta'});
                     on.emit(node.children[3], 'click');
 
-                    expect(node.querySelectorAll('[selected]').length).to.equal(2);
+                    expect(node.querySelectorAll('[aria-selected]').length).to.equal(2);
                     controller.destroy();
                     on.emit(document, 'keyup');
                 });
@@ -239,18 +239,18 @@
                     on.emit(node.children[1], 'click');
                     on.emit(document, 'keydown', {key:'Shift'});
                     on.emit(node.children[3], 'click');
-                    expect(node.querySelectorAll('[selected]').length).to.equal(3);
+                    expect(node.querySelectorAll('[aria-selected]').length).to.equal(3);
                     on.emit(document, 'keyup');
                     controller.destroy();
                 });
 
-                test('it should select multiple on shift-click (select upward)', function () {
+                test.only('it should select multiple on shift-click (select upward)', function () {
                     var node = byId('list'),
                         controller = keys(node, {multiple:true});
                     on.emit(node.children[3], 'click');
                     on.emit(document, 'keydown', {key:'Shift'});
                     on.emit(node.children[1], 'click');
-                    expect(node.querySelectorAll('[selected]').length).to.equal(3);
+                    expect(node.querySelectorAll('[aria-selected]').length).to.equal(3);
                     on.emit(document, 'keyup');
                     controller.destroy();
                 });
@@ -260,7 +260,7 @@
                 test('it should default to the first item selected', function () {
                     var node = byId('list'),
                         controller = keys(node, {}),
-                        selected = node.querySelectorAll('[selected]');
+                        selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
                     controller.destroy();
@@ -269,7 +269,7 @@
                 test('it should *not* default to the first item selected', function () {
                     var node = byId('list'),
                         controller = keys(node, {noDefault: true}),
-                        selected = node.querySelectorAll('[selected]');
+                        selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(0);
                     controller.destroy();
@@ -278,22 +278,22 @@
                 test('it should select none with Escape', function () {
                     var node = byId('list'),
                         controller = keys(node, {}),
-                        selected = node.querySelectorAll('[selected]');
+                        selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
                     on.emit(node, 'keydown', {key:'Escape'});
-                    expect(node.querySelectorAll('[selected]').length).to.equal(0);
+                    expect(node.querySelectorAll('[aria-selected]').length).to.equal(0);
                     controller.destroy();
                 });
 
                 test('it should *not* select none with Escape', function () {
                     var node = byId('list'),
                         controller = keys(node, {canSelectNone: false}),
-                        selected = node.querySelectorAll('[selected]');
+                        selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
                     on.emit(node, 'keydown', {key:'Escape'});
-                    expect(node.querySelectorAll('[selected]').length).to.equal(1);
+                    expect(node.querySelectorAll('[aria-selected]').length).to.equal(1);
                     controller.destroy();
                 });
             });
@@ -305,7 +305,7 @@
                             return node.hasAttribute('selected');
                         },
                         hi = function (node) {
-                            return node.hasAttribute('highlighted');
+                            return node.hasAttribute('aria-current');
                         },
                         node = byId('table'),
                         controller = keys(node, {}),

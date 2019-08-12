@@ -2,9 +2,10 @@
 # yarn lockfile v1
 
 
-"@clubajax/on@^2.1.5":
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/@clubajax/on/-/on-2.1.6.tgz#cd674fdb52fdfaf6d4136372a4d4cb81aa7a1899"
+"@clubajax/on@^2.1.8":
+  version "2.1.8"
+  resolved "https://registry.yarnpkg.com/@clubajax/on/-/on-2.1.8.tgz#b04fa40ef0b1a5d697d7dcea82def98a3b0329c3"
+  integrity sha1-sE+kDvCxpdaX19zqgt75ijsDKcM=
   dependencies:
     grunt "^1.0.1"
     grunt-contrib-uglify "^2.3.0"
