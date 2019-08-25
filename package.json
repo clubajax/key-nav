@@ -23,7 +23,7 @@
   "homepage": "https://github.com/clubajax/key-nav#readme",
   "devDependencies": {
     "@clubajax/dom": "^2.8.5",
-    "grunt": "^1.0.1",
+    "grunt": "^1.0.4",
     "grunt-contrib-uglify": "^2.0.0"
   },
   "dependencies": {

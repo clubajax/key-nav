@@ -108,7 +108,7 @@ If no selection, the value is `null`.
     }
 
 ### `key-dom-change`
-The MutationEvent is passed:
+The [MutationEvent](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver) is passed:
 
     {
         detail:{
