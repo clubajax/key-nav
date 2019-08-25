@@ -28,7 +28,7 @@
 				log: false,
 				setSelected: function (node) {
 					highlight(select(node));
-					on.fire(listNode, 'key-select', { value: selected });
+					on.fire(listNode, 'key-select', { value: selected }, true);
 				},
 				getSelected: function () {
 					return selected;
@@ -66,7 +66,7 @@
             highlighted;
         
         selected = select(getSelected(children, options.defaultToFirst), false, true),
-        highlighted = highlight(fromArray(selected));
+            highlighted = highlight(fromArray(selected), options.defaultToFirst);
         
         const nodeType = (highlighted || children[0]).localName;
 
@@ -78,11 +78,11 @@
 			}
 		}
 
-		function highlight (node) {
+        function highlight(node, defaultToFirst) {
             node = fromArray(node);
             unhighlight(); 
 			if (!node) {
-				if (!children[0]) {
+                if (!children[0] || !defaultToFirst) {
 					return;
 				}
 				node = children[0];
@@ -90,7 +90,8 @@
             highlighted = node;
             highlighted.setAttribute('tab-index', "-1");
             highlighted.setAttribute('aria-current', "true");
-			highlighted.focus();
+            highlighted.focus();
+            on.fire(listNode, 'key-highlight', {value: highlighted}, true);
 			return highlighted;
 		}
 
@@ -144,12 +145,15 @@
             if (noNullEvent && !selected) {
                 return selected;    
             }
-            on.fire(listNode, 'key-select', {value: selected});
+            on.fire(listNode, 'key-select', {value: selected}, true);
             
 			return selected;
 		}
 
-		function scrollTo () {
+        function scrollTo() {
+            if (!highlighted) {
+                return;
+            }
 			let top = highlighted.offsetTop;
 			let height = highlighted.offsetHeight;
 			let listHeight = listNode.offsetHeight;
@@ -161,12 +165,10 @@
 			}
 		}
 
-		// on.fire(listNode, 'key-highlight', { value: highlighted });
 		controller.handles = [
             on(listNode, 'mousedown', nodeType, function (e, node) {
 				highlight(node);
 				select(node);
-                // on.fire(listNode, 'key-select', {value: selected});
                 e.preventDefault();
 			}),
 			on(document, 'keyup', function (e) {
@@ -199,7 +201,6 @@
 				switch (e.key) {
 					case 'Enter':
 						select(highlighted);
-						// on.fire(listNode, 'key-select', { value: selected });
 						break;
 					case 'Escape':
 						if (canSelectNone) {
@@ -210,7 +211,6 @@
 					case 'ArrowDown':
 						if (tableMode) {
 							highlight(getCell(children, highlighted || selected, 'down'));
-							on.fire(listNode, 'key-highlight', { value: highlighted });
 							break;
                         } else {
                             const node = getNode(children, highlighted || selected, 'down');
@@ -218,7 +218,6 @@
                             if (multiple && (shift || meta)) {
                                 select(node, true);
                             }
-							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
 						scrollTo();
 						e.preventDefault();
@@ -226,24 +225,20 @@
 					case 'ArrowRight':
                         if (tableMode) {
 							highlight(getNode(children, highlighted || selected, 'down'));
-							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
 						break;
 
 					case 'ArrowUp':
 						if (tableMode) {
 							highlight(getCell(children, highlighted || selected, 'up'));
-							on.fire(listNode, 'key-highlight', { value: highlighted });
 							e.preventDefault();
 							break;
                         } else {
-                            
                             const node = getNode(children, highlighted || selected, 'up');
                             highlight(node);
                             if (multiple && (shift || meta)) {
                                 select(node, true);
                             }
-                            on.fire(listNode, 'key-highlight', {value: highlighted});
 						}
 						scrollTo();
 						e.preventDefault();
@@ -251,7 +246,6 @@
 					case 'ArrowLeft':
 						if (tableMode) {
 							highlight(getNode(children, highlighted || selected, 'up'));
-							on.fire(listNode, 'key-highlight', { value: highlighted });
 						}
 						break;
 					default:
@@ -289,9 +283,8 @@
 			if (typeof MutationObserver !== 'undefined') {
 				observer = new MutationObserver(function (mutations) {
                     mutations.forEach(function (event) {
-                        console.log('event', event);
                         if (event.type === 'childList') {
-                            on.fire(listNode, 'key-dom-change', event);
+                            on.fire(listNode, 'key-dom-change', event, true);
                         }
 						if (event.addedNodes.length) {
 							addRoles(listNode);
