@@ -44,7 +44,7 @@ The controller can be paused or destroyed:
 ```jsx harmony
 controller.pause();
 controller.resume();
-controller.destroy();
+controller.remove();
 ```
 
 It also has a few dynamic controls:
@@ -65,13 +65,64 @@ The following custom events are fired from the listNode:
 
 ## Options
 
-the following options are available:
+The following options are available:
 
  * `canSelectNone` - Allows no selection. Defaults to first child.
- * `noDefault` - Allows no selection at start. Defaults to first child.
+ * `defaultToFirst` - First child is selected on init. Defaults to no selection at start
  * `multiple` - Allows multiple select with Shift or Control/Command. Defaults to single select.
  * `searchTime` - The time before an alphanumeric search is executed. Defaults to 1000ms.
- * `roles` - Automatically will add Aria roles to the list node and its children.
+ * `noRoles` - This will prevent the default, which is to automatically add Aria roles to the list node and its children.
+
+## Events
+
+The following (custom) events are emitted:
+
+ * `key-select` - Emits on selection.
+ * `key-highlight` - Emits on selection.
+ * `key-dom-change` - Emits on add or remove of a list item.
+
+### `key-select`
+
+    {
+        detail:{
+            value: HTMLElement
+        }
+    }
+
+if `multiple` is true:
+
+    {
+        detail:{
+            value: [HTMLElement, HTMLElement]
+        }
+    }
+
+If no selection, the value is `null`.
+
+### `key-highlight`
+
+    {
+        detail:{
+            value: HTMLElement
+        }
+    }
+
+### `key-dom-change`
+The MutationEvent is passed:
+
+    {
+        detail:{
+            addedNodes: NodeList [],
+            removedNodes: NodeList [li],
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: null,
+            oldValue: null,
+            previousSibling: li,
+            target: ol#list,
+            type: "childList"
+        }
+    }
 
 ## License
 

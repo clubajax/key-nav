@@ -32,15 +32,19 @@
 				},
 				getSelected: function () {
 					return selected;
-				},
+                },
+                remove: function () {
+                    this.destroy();
+                },
                 destroy: function () {
                     shift = false;
                     meta = false;
 					select();
 					unhighlight();
-					this.handles.forEach(function (h) { h.remove(); });
+                    this.handles.forEach(function (h) {h.remove();});
+                    
 					if (observer) {
-						observer.disconnect();
+                        observer.disconnect();
 					}
 				}
 			},
@@ -61,7 +65,7 @@
             selected,
             highlighted;
         
-        selected = select(getSelected(children, options.noDefault)),
+        selected = select(getSelected(children, options.defaultToFirst), false, true),
         highlighted = highlight(fromArray(selected));
         
         const nodeType = (highlighted || children[0]).localName;
@@ -90,7 +94,7 @@
 			return highlighted;
 		}
 
-		function select (node, keyboardMode) {
+		function select (node, keyboardMode, noNullEvent) {
             if (multiple) {
                 if (selected) {
                     if (!shift && !meta) {
@@ -121,8 +125,11 @@
 						}
                         node.setAttribute('aria-selected', 'true');
 					}
-				} else {
-					selected = [node];
+                } else {
+                    if (node) {
+                        node.setAttribute('aria-selected', 'true');
+                    }
+                    selected = node ? [node] : null;
 				}
 
 			} else {
@@ -133,7 +140,12 @@
 					selected = node;
                     selected.setAttribute('aria-selected', 'true');
 				}
-			}
+            }
+            if (noNullEvent && !selected) {
+                return selected;    
+            }
+            on.fire(listNode, 'key-select', {value: selected});
+            
 			return selected;
 		}
 
@@ -149,13 +161,12 @@
 			}
 		}
 
-		on.fire(listNode, 'key-highlight', { value: highlighted });
-		on.fire(listNode, 'key-select', { value: highlighted });
+		// on.fire(listNode, 'key-highlight', { value: highlighted });
 		controller.handles = [
             on(listNode, 'mousedown', nodeType, function (e, node) {
 				highlight(node);
 				select(node);
-                on.fire(listNode, 'key-select', {value: selected});
+                // on.fire(listNode, 'key-select', {value: selected});
                 e.preventDefault();
 			}),
 			on(document, 'keyup', function (e) {
@@ -175,7 +186,7 @@
 					case 'Command':
 						meta = true;
 						break;
-					case 'Shift':
+                    case 'Shift':
 						shift = true;
 						break;
 				}
@@ -188,7 +199,7 @@
 				switch (e.key) {
 					case 'Enter':
 						select(highlighted);
-						on.fire(listNode, 'key-select', { value: selected });
+						// on.fire(listNode, 'key-select', { value: selected });
 						break;
 					case 'Escape':
 						if (canSelectNone) {
@@ -273,11 +284,15 @@
 			}
 		];
 
-		if (options.roles) {
+		if (!options.noRoles) {
 			addRoles(listNode);
 			if (typeof MutationObserver !== 'undefined') {
 				observer = new MutationObserver(function (mutations) {
-					mutations.forEach(function (event) {
+                    mutations.forEach(function (event) {
+                        console.log('event', event);
+                        if (event.type === 'childList') {
+                            on.fire(listNode, 'key-dom-change', event);
+                        }
 						if (event.addedNodes.length) {
 							addRoles(listNode);
 						}
@@ -308,16 +323,16 @@
 		if (!node) {
 			return false;
 		}
-		return node.selected || node.hasAttribute('aria-selected');
+		return node.hasAttribute('aria-selected');
 	}
 
-	function getSelected (children, noDefault) {
+    function getSelected(children, defaultToFirst) {
 		for (let i = 0; i < children.length; i++) {
 			if (isSelected(children[i])) {
 				return children[i];
 			}
 		}
-		return noDefault ? null : children[0];
+        return defaultToFirst ? children[0] : null;
 	}
 
 	function getNext (children, index) {

@@ -4,6 +4,7 @@
     <title>Test keys</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
     <script src="../node_modules/@clubajax/on/dist/on.js"></script>
+    <script src="../node_modules/@clubajax/dom/src/dom.js"></script>
     <script src="../src/keys.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
@@ -112,7 +113,7 @@
             suite('arrow keys', function () {
                 test('it should select and highlight the first item by default', function () {
                     const node = byId('list'),
-                        controller = keys(node);
+                        controller = keys(node, {defaultToFirst: true});
                     expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
                     expect(node.querySelector('[aria-current]')).to.equal(node.children[0]);
                     controller.destroy();
@@ -129,7 +130,7 @@
 
                 test('it should highlight, but not select, the next node on arrow down', function () {
                     const node = byId('list'),
-                        controller = keys(node);
+                        controller = keys(node, {defaultToFirst: true});
                     on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
                     expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
                     expect(node.querySelector('[aria-current]')).to.equal(node.children[1]);
@@ -140,7 +141,6 @@
                     const node = byId('list'),
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
-                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
                     expect(node.querySelector('[aria-current]')).to.equal(node.children[1]);
                     on.emit(node, 'keydown', {key: 'Enter'}, true);
                     expect(node.querySelector('[aria-selected]')).to.equal(node.children[1]);
@@ -151,7 +151,6 @@
                     const node = byId('list'),
                         controller = keys(node);
                     on.emit(node, 'keydown', {key: 'ArrowUp'}, true);
-                    expect(node.querySelector('[aria-selected]')).to.equal(node.children[0]);
                     expect(node.querySelector('[aria-current]')).to.equal(node.children[node.children.length-1]);
                     on.emit(node, 'keydown', {key: 'ArrowDown'}, true);
                     expect(node.querySelector('[aria-current]')).to.equal(node.children[0]);
@@ -264,7 +263,7 @@
             suite('selection', function () {
                 test('it should default to the first item selected', function () {
                     const node = byId('list'),
-                        controller = keys(node, {}),
+                        controller = keys(node, {defaultToFirst: true}),
                         selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
@@ -273,7 +272,7 @@
 
                 test('it should *not* default to the first item selected', function () {
                     const node = byId('list'),
-                        controller = keys(node, {noDefault: true}),
+                        controller = keys(node, {}),
                         selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(0);
@@ -282,7 +281,7 @@
 
                 test('it should select none with Escape', function () {
                     const node = byId('list'),
-                        controller = keys(node, {}),
+                        controller = keys(node, {defaultToFirst: true}),
                         selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
@@ -293,13 +292,97 @@
 
                 test('it should *not* select none with Escape', function () {
                     const node = byId('list'),
-                        controller = keys(node, {canSelectNone: false}),
+                        controller = keys(node, {canSelectNone: false, defaultToFirst: true}),
                         selected = node.querySelectorAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
                     on.emit(node, 'keydown', {key:'Escape'});
                     expect(node.querySelectorAll('[aria-selected]').length).to.equal(1);
                     controller.destroy();
+                });
+            });
+
+            suite('events', function(){
+                test('it should emit events (single select)', function () {
+                    const node = byId('list');
+                    let selected = null;
+                    let highlighted = null;
+                    on(node, 'key-select', function (e) {
+                        selected = e.detail.value;
+                    });
+                    on(node, 'key-highlight', function (e) {
+                        highlighted = e.detail.value;
+                    });
+
+                    const controller = keys(node, {multiple: false});
+
+                    expect(selected).to.equal(null);
+                    expect(highlighted).to.equal(null);
+
+                    node.focus();
+                    on.emit(node, 'keydown', {key: 'ArrowDown'});
+                    expect(node.querySelector('[aria-current="true"]')).to.equal(highlighted);
+                    on.emit(node, 'keydown', {key: 'Enter'});
+                    expect(node.querySelector('[aria-selected="true"]')).to.equal(selected);
+
+                    controller.destroy();
+                });
+
+                test('it should emit events (multiple select)', function () {
+                    const node = byId('list');
+                    let selected;
+                    let highlighted;
+                    on(node, 'key-select', function (e) {
+                        selected = e.detail.value;
+                    });
+                    on(node, 'key-highlight', function (e) {
+                        highlighted = e.detail.value;
+                    });
+                    const controller = keys(node, {multiple: true});
+
+                    node.focus();
+                    on.emit(node, 'keydown', {key: 'Shift'});
+                    on.emit(node, 'keydown', {key: 'ArrowDown'});
+                    on.emit(node, 'keydown', {key: 'ArrowDown'});
+                    on.emit(node, 'keydown', {key: 'ArrowDown'});
+
+                    expect(selected.length).to.equal(3);
+                    controller.destroy();
+                });
+
+                test('it should emit add dom events', function (done) {
+                    const node = byId('list');
+                    let tmp;
+                    let change;
+                    const h = on(node, 'key-dom-change', function (e) {
+                        change = e.detail;
+                        expect(change.addedNodes.length).to.equal(1);
+                        controller.destroy();
+                        h.remove();
+                        dom.destroy(tmp);
+                        done();
+                    });
+                    const controller = keys(node);
+                    tmp = dom('li', {html: 'six'}, node);
+                });
+
+                test('it should emit remove dom events', function (done) {
+                    const node = byId('list');
+                    let tmp;
+                    let change;
+                    on(node, 'key-dom-change', function (e) {
+                        change = e.detail;
+                        if (change.removedNodes.length) {
+                            expect(change.removedNodes.length).to.equal(1);
+                            done();
+                            controller.destroy();
+                        } else{
+                            expect(change.addedNodes.length).to.equal(1);
+                            dom.destroy(tmp);
+                        }
+                    });
+                    const controller = keys(node);
+                    tmp = dom('li', {html: 'six'}, node);
                 });
             });
 
@@ -313,7 +396,7 @@
                             return node.hasAttribute('aria-current');
                         },
                         node = byId('table'),
-                        controller = keys(node, {}),
+                        controller = keys(node, {defaultToFirst: true}),
                         cells = node.querySelectorAll('td');
 
                     expect(sel(cells[0])).to.equal(true);
