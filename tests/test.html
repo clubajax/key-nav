@@ -237,7 +237,7 @@
                 test('it should select multiple on control-click', function () {
                     const controller = keys(node, {multiple:true});
                     on.emit(node.children[2], EVENTS.CLICK);
-                    on.emit(document, 'keydown', {key:'Meta'});
+                    key('Meta');
                     on.emit(node.children[3], EVENTS.CLICK);
 
                     expect(dom.queryAll('[aria-selected]').length).to.equal(2);
@@ -262,6 +262,8 @@
                     on.emit(node.children[1], EVENTS.CLICK);
                     expect(dom.queryAll('[aria-selected]').length).to.equal(3);
                     keyup('Shift');
+                    on.emit(node.children[4], EVENTS.CLICK);
+                    expect(dom.queryAll('[aria-selected]').length).to.equal(1);
                     controller.destroy();
                 });
             });

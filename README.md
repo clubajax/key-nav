@@ -89,6 +89,8 @@ The following (custom) events are emitted:
         }
     }
 
+If no selection, the value is `null`.
+
 if `multiple` is true:
 
     {
@@ -97,7 +99,7 @@ if `multiple` is true:
         }
     }
 
-If no selection, the value is `null`.
+If no selection, the value is `[]`.
 
 ### `key-highlight`
 

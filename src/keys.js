@@ -179,7 +179,7 @@
 				shift = e.shiftKey;
                 meta = false;
 			}),
-			on(document, 'keydown', function (e) {
+			on(listNode, 'keydown', function (e) {
 				if (e.defaultPrevented) {
 					return;
 				}
@@ -194,10 +194,7 @@
 						break;
 				}
             }),
-            
-            // TODO - why document? Should be listNode
-            // need to not have to pause, for click events
-            on(document, 'keydown', function (e) {
+            on(listNode, 'keydown', function (e) {
 				if (e.defaultPrevented) {
 					return;
 				}
