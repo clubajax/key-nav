@@ -95,49 +95,48 @@
 			return highlighted;
 		}
 
-		function select (node, keyboardMode, noNullEvent) {
-            if (multiple) {
-                if (selected) {
-                    if (!shift && !meta) {
-                        selected.forEach(function (sel) {
-                            sel.removeAttribute('aria-selected');
-						});
-                        selected = null;
-						if (node) {
-							selected = [node];
-							node.setAttribute('aria-selected', 'true');
-						}
-					}
-                    else if (shift && node) {
-                        if (keyboardMode && selected) {
-                            selected.push(node);
-                        } else {
-                            selected = findShiftNodes(children, selected, node);
-                        }
-                        selected.forEach(function (sel) {
-                            sel.setAttribute('aria-selected', 'true');
-                        });
-					}
-					else if (meta && node) {
-						if (!selected) {
-							selected = [node];
-						} else {
-							selected.push(node);
-						}
-                        node.setAttribute('aria-selected', 'true');
-					}
-                } else {
-                    if (node) {
-                        node.setAttribute('aria-selected', 'true');
-                    }
-                    selected = node ? [node] : null;
-				}
+        function select(node, keyboardMode, noNullEvent) {
+            // keyboardMode: arrow + meta
+            const addToSelection = multiple && node && (keyboardMode || shift || meta || Array.isArray(node));
+            if (!multiple || !addToSelection) {
+                if (Array.isArray(selected)) {
+                    selected.forEach(function (sel) {
+                        sel.removeAttribute('aria-selected');
+                    });
+                } else if (selected) {
+                    selected.removeAttribute('aria-selected');
+                }
+                selected = null;
+            }
 
-			} else {
+            if (addToSelection) {
+                selected = Array.isArray(selected) ? selected : selected ? [selected] : [];
+                if (shift) {
+                    if (keyboardMode) {
+                        selected.push(node);
+                    } else {
+                        selected = findShiftNodes(children, selected, node);
+                    }
+                    selected.forEach(function (sel) {
+                        sel.setAttribute('aria-selected', 'true');
+                    });
+                }
+                else if (Array.isArray(node)) {
+                    node.forEach(function (n) {
+                        n.setAttribute('aria-selected', 'true');
+                    });
+                    selected = selected.concat(node);
+                }
+                else if (node) {
+                    node.setAttribute('aria-selected', 'true');
+                    selected.push(node);
+                }
+            }
+			else {
                 if (selected) {
                     selected.removeAttribute('aria-selected');
-				}
-				if (node) {
+                }
+                if (node) {
 					selected = node;
                     selected.setAttribute('aria-selected', 'true');
 				}
@@ -192,8 +191,11 @@
 						shift = true;
 						break;
 				}
-			}),
-			on(document, 'keydown', function (e) {
+            }),
+            
+            // TODO - why document? Should be listNode
+            // need to not have to pause, for click events
+            on(document, 'keydown', function (e) {
 				if (e.defaultPrevented) {
 					return;
 				}
@@ -450,7 +452,9 @@
 	}
 
 	function findShiftNodes (children, selected, node) {
-		let i, a, b, c, lastNode = selected[selected.length - 1], newIndex, lastIndex, selection = [];
+        let i, a, b, c, newIndex, lastIndex,
+            lastNode = selected[selected.length - 1],
+            selection = [];
 		selected.forEach(function (sel) {
 			sel.removeAttribute('aria-selected');
 		});
@@ -461,7 +465,7 @@
 			} else if (c === lastNode) {
 				lastIndex = i;
 			}
-		}
+        }
 		if (newIndex < lastIndex) {
 			a = newIndex;
 			b = lastIndex;
@@ -474,6 +478,9 @@
 			children[a].setAttribute('aria-selected', '');
 			selection.push(children[a]);
 			a++;
+        }
+        if (!selection.length) {
+            return [node];
         }
 		return selection;
 	}
