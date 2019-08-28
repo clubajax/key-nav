@@ -27,8 +27,7 @@
 			controller = {
 				log: false,
 				setSelected: function (node) {
-					highlight(select(node));
-					on.fire(listNode, 'key-select', { value: selected }, true);
+					select(node);
 				},
 				getSelected: function () {
 					return selected;
@@ -143,6 +142,9 @@
             }
             if (noNullEvent && !selected) {
                 return selected;    
+            }
+            if (multiple && !selected) {
+                selected = [];
             }
             on.fire(listNode, 'key-select', {value: selected}, true);
             

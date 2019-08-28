@@ -195,16 +195,19 @@
                     const controller = keys(node);
                     controller.setSelected(node.children[2]);
                     expect(dom.query('[aria-selected]')).to.equal(node.children[2]);
-                    expect(dom.query('[aria-current]')).to.equal(node.children[2]);
                     expect(controller.getSelected()).to.equal(node.children[2]);
                     controller.destroy();
                 });
                 test('it should select multiple nodes with setSelected()', function () {
                     const controller = keys(node, {multiple: true});
-                    controller.setSelected([node.children[1], node.children[2]]);
-                    // expect(dom.query('[aria-selected]')).to.equal(node.children[2]);
-                    // expect(dom.query('[aria-current]')).to.equal(node.children[2]);
-                    // expect(controller.getSelected()).to.equal(node.children[2]);
+                    controller.setSelected([node.children[0], node.children[1]]);
+                    expect(dom.queryAll('[aria-selected]')[0]).to.equal(node.children[0]);
+                    expect(controller.getSelected().length).to.equal(2);
+
+                    controller.setSelected([node.children[2], node.children[4]]);
+                    expect(controller.getSelected().length).to.equal(4);
+                    controller.setSelected(null);
+                    expect(controller.getSelected().length).to.equal(0);
                     controller.destroy();
                 });
             });
