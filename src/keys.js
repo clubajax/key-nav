@@ -107,17 +107,17 @@
                 });
                 selected = multiple ? [] : null;
             }
-            console.log('shift', shift);
             if (node && multiple) {
-                console.log('mult');
-                selected = Array.isArray(selected) ? selected : selected ? [selected] : [];
+                console.log(' --- ', selected);
+                selected = toArray(selected);
+                console.log(' --- ', selected);
                 if (shift && !Array.isArray(node)) {
-                    console.log('add', node, 'to', selected);
+                    console.log('shift.add', node, 'to', selected);
                     selected = findShiftNodes(children, node, pivotNode);
                     console.log('shift nodes', selected);
                 } else if (meta || shift) {
-                    console.log('meta');
                     selected = [...selected, ...toArray(node)];
+                    console.log('meta', selected);
                     selected.forEach(function (sel) {
                         sel.setAttribute('aria-selected', 'true');
                     });
@@ -129,7 +129,7 @@
                     });
                     selected = selected.concat(node);
                 } else if (node) {
-                    console.log('single');
+                    console.log('single', selected);
                     node.setAttribute('aria-selected', 'true');
                     selected.push(node);
                 }
@@ -225,6 +225,7 @@
                             const node = getNode(children, highlighted || selected, 'down');
                             highlight(node);
                             if (multiple && (shift || meta)) {
+                                pivotNode = pivotNode || node;
                                 select(node, true);
                             }
                         }
@@ -246,6 +247,7 @@
                             const node = getNode(children, highlighted || selected, 'up');
                             highlight(node);
                             if (multiple && (shift || meta)) {
+                                pivotNode = pivotNode || node;
                                 select(node, true);
                             }
                         }
@@ -344,9 +346,8 @@
     }
 
     function getNext(children, index) {
-        let
-            norecurse = children.length + 2,
-            node = children[index];
+        let norecurse = children.length + 2;
+        let node = children[index];
         while (node) {
             index++;
             if (index > children.length - 1) {
@@ -360,13 +361,12 @@
                 return getFirstElligible(children);
             }
         }
-        return node;
+        return node || children[0];
     }
 
     function getPrev(children, index) {
-        let
-            norecurse = children.length + 2,
-            node = children[index];
+        let norecurse = children.length + 2;
+        let node = children[index];
         while (node) {
             index--;
             if (index < 0) {
@@ -380,7 +380,7 @@
                 return getLastElligible(children);
             }
         }
-        return node;
+        return node || children[children.length - 1];
     }
 
     function isVisible(node) {
@@ -410,7 +410,7 @@
     }
 
     function getNode(children, highlighted, dir) {
-        let index = 0;
+        let index = -1;
         for (let i = 0; i < children.length; i++) {
             if (children[i] === highlighted) {
                 index = i;
@@ -495,85 +495,6 @@
         return selection;
     }
 
-    function XXfindShiftNodes(children, node, pivotNode) {
-        console.log('findShiftNodes', node);
-        let i, child, clickIndex, selIndicies = [], beg, end, selection = [];
-        for (i = 0; i < children.length; i++) {
-            child = children[i];
-            if (child === node) {
-                clickIndex = i;
-            } else if (child.getAttribute('aria-selected') === 'true') {
-                selIndicies.push(i);
-            }
-            child.removeAttribute('aria-selected');
-
-        }
-        if (!selIndicies.length) {
-            toArray(node).forEach(function (n) {
-                n.setAttribute('aria-selected', 'true');
-                selection.push(n);
-            });
-            return selection;
-        }
-        const lowIndex = Math.min.apply(null, selIndicies);
-        const highIndex = Math.max.apply(null, selIndicies);
-        if (clickIndex >= lowIndex && clickIndex <= highIndex) {
-            beg = lowIndex;
-            end = highIndex;
-        } else if (clickIndex < lowIndex) {
-            beg = clickIndex;
-            end = highIndex;
-        } else {
-            beg = lowIndex;
-            end = clickIndex;
-        }
-
-        console.log(' INDEX', beg, end);
-
-        while (beg <= end) {
-            children[beg].setAttribute('aria-selected', 'true');
-            selection.push(children[beg]);
-            beg++;
-        }
-        return selection;
-    }
-
-    function XfindShiftNodes(children, selected, node) {
-        let i, a, b, c, newIndex, lastIndex,
-            lastNode = selected[selected.length - 1],
-            selection = [];
-        console.log('findShiftNodes', node, lastNode);
-        console.log('children', toArray(children));
-        selected.forEach(function (sel) {
-            sel.removeAttribute('aria-selected');
-        });
-        for (i = 0; i < children.length; i++) {
-            c = children[i];
-            if (c === node) {
-                newIndex = i;
-            } else if (c === lastNode) {
-                lastIndex = i;
-            }
-        }
-        if (newIndex < lastIndex) {
-            a = newIndex;
-            b = lastIndex;
-        } else {
-            b = newIndex;
-            a = lastIndex;
-        }
-
-        while (a <= b) {
-            children[a].setAttribute('aria-selected', '');
-            selection.push(children[a]);
-            a++;
-        }
-        if (!selection.length) {
-            return [node];
-        }
-        return selection;
-    }
-
     function addRoles(node) {
         // https://www.w3.org/TR/wai-aria/roles#listbox
         for (let i = 0; i < node.children.length; i++) {
@@ -587,6 +508,9 @@
     }
 
     function toArray(thing) {
+        if (!thing) {
+            return [];
+        }
         if (thing instanceof NodeList || thing instanceof HTMLCollection) {
             return Array.prototype.slice.call(thing);
         }

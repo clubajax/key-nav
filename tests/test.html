@@ -65,7 +65,7 @@
         <li>cinco</li>
     </ol>
 
-    <!-- <table tabindex="0" id="table">
+    <table tabindex="0" id="table">
         <thead>
             <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
         </thead>
@@ -76,7 +76,7 @@
             <tr><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr>
             <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>
         </tbody>
-    </table> -->
+    </table>
     
     <select multiple>
         <option value="1">uno</option>
@@ -98,7 +98,8 @@
                 on = window.on,
                 expect = chai.expect,
                 EVENTS = {
-                    CLICK: 'mousedown'
+                    MOUSEDOWN: 'mousedown',
+                    MOUSEUP: 'mouseup'
                 };
 
             let controller;
@@ -106,6 +107,7 @@
             let selected = null;
             let highlighted = null;
             on(node, 'key-select', function (e) {
+                console.log('SEL', e.detail.value);
                 selected = e.detail.value;
             });
             on(node, 'key-highlight', function (e) {
@@ -132,8 +134,11 @@
                     listNode.appendChild(node);
                 }
             }
-            function click(index){
-                on.emit(node.children[index], EVENTS.CLICK);
+            function click(index, mouseup){
+                on.emit(node.children[index], EVENTS.MOUSEDOWN);
+                if (mouseup) {
+                    on.emit(node.children[index], EVENTS.MOUSEUP);
+                }
             }
             function key (which) {
                 console.log('   keydn', which);
@@ -145,14 +150,15 @@
             }
 
             afterEach(function() {
-                // controller.destroy();
-                // selected = null;
-                // highlighted = null;
+                controller.destroy();
+                selected = null;
+                highlighted = null;
             })
 
             describe('arrow keys', function () {
                 it('should select and highlight the first item by default', function () {
                     controller = keys(node, {defaultToFirst: true});
+                    
                     expect(dom.query('[aria-selected]')).to.equal(node.children[0]);
                     expect(dom.query('[aria-current]')).to.equal(node.children[0]);
                 });
@@ -174,9 +180,9 @@
                 it('should select on Enter', function () {
                     controller = keys(node);
                     key('ArrowDown');
-                    expect(dom.query('[aria-current]')).to.equal(node.children[1]);
+                    expect(dom.query('[aria-current]')).to.equal(node.children[0]);
                     key('Enter');
-                    expect(dom.query('[aria-selected]')).to.equal(node.children[1]);
+                    expect(dom.query('[aria-selected]')).to.equal(node.children[0]);
                 });
 
                 it('should highlight the last node on arrow up', function () {
@@ -270,7 +276,7 @@
                 it('should select multiple on shift-click', function () {
                     controller = keys(node, {multiple:true});
                     node.focus();
-                    click(1);
+                    click(1, true);
                     key('Shift');
                     click(3);
                     expect(dom.queryAll('[aria-selected]').length).to.equal(3);
@@ -281,14 +287,13 @@
                 it('should select multiple on shift-click (select upward)', function () {
                     controller = keys(node, {multiple:true});
                     node.focus();
-                    click(3);
+                    click(3, true);
                     key('Shift');
                     click(1);
                     expect(dom.queryAll('[aria-selected]').length).to.equal(3);
                     keyup('Shift');
                     click(4);
                     expect(dom.queryAll('[aria-selected]').length).to.equal(1);
-                    
                 });
             });
 
@@ -344,14 +349,15 @@
                     expect(dom.query('[aria-selected="true"]')).to.equal(selected);
                 });
 
-                it.only('should emit events (multiple select)', function () {
+                it('should emit events (multiple select)', function () {
                     controller = keys(node, {multiple: true});
                     node.focus();
-                    // key('Shift');
-                    // key('ArrowDown');
-                    // key('ArrowDown');
-                    // key('ArrowDown');
-                    // expect(selected.length).to.equal(3);
+                    key('Shift');
+                    key('ArrowDown');
+                    key('ArrowDown');
+                    key('ArrowDown');
+                    console.log('GET', controller.getSelected());
+                    expect(selected.length).to.equal(3);
                 });
 
                 it('should emit add dom events', function (done) {
