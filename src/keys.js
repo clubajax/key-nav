@@ -95,9 +95,8 @@
             return highlighted;
         }
 
-        function select(node, keyboardMode, noNullEvent) {
-            // keyboardMode: arrow + meta
-            const clearSelection = !shift && !meta; // multiple; // && node && (keyboardMode || shift || meta || Array.isArray(node));
+        function select(node) {
+            const clearSelection = !shift && !meta;
             if (clearSelection && selected) {
                 toArray(selected).forEach(function (sel) {
                     sel.removeAttribute('aria-selected');
@@ -132,15 +131,12 @@
                     selected.setAttribute('aria-selected', 'true');
                 }
             }
-            if (noNullEvent && !selected) {
-                return selected;
-            }
             if (multiple && !selected) {
                 selected = [];
             }
-            on.fire(listNode, 'key-select', {value: selected}, true);
+            on.fire(listNode, 'key-select', {value: selected || null}, true);
 
-            return selected;
+            return selected || null;
         }
 
         function scrollTo() {
