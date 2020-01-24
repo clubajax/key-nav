@@ -27,7 +27,6 @@
             controller = {
                 log: false,
                 setSelected: function (node) {
-                    console.log('setSel', node);
                     select(node);
                 },
                 getSelected: function () {
@@ -37,7 +36,6 @@
                     this.destroy();
                 },
                 destroy: function () {
-                    console.log('DESTROY');
                     shift = false;
                     meta = false;
                     select();
@@ -101,35 +99,27 @@
             // keyboardMode: arrow + meta
             const clearSelection = !shift && !meta; // multiple; // && node && (keyboardMode || shift || meta || Array.isArray(node));
             if (clearSelection && selected) {
-                console.log(' *clr');
                 toArray(selected).forEach(function (sel) {
                     sel.removeAttribute('aria-selected');
                 });
                 selected = multiple ? [] : null;
             }
             if (node && multiple) {
-                console.log(' --- ', selected);
                 selected = toArray(selected);
-                console.log(' --- ', selected);
                 if (shift && !Array.isArray(node)) {
-                    console.log('shift.add', node, 'to', selected);
                     selected = findShiftNodes(children, node, pivotNode);
-                    console.log('shift nodes', selected);
                 } else if (meta || shift) {
                     selected = [...selected, ...toArray(node)];
-                    console.log('meta', selected);
                     selected.forEach(function (sel) {
                         sel.setAttribute('aria-selected', 'true');
                     });
                 } else if (Array.isArray(node)) {
-                    console.log('mult add');
                     selected = [];
                     node.forEach(function (n) {
                         n.setAttribute('aria-selected', 'true');
                     });
                     selected = selected.concat(node);
                 } else if (node) {
-                    console.log('single', selected);
                     node.setAttribute('aria-selected', 'true');
                     selected.push(node);
                 }
@@ -465,7 +455,6 @@
     }
 
     function findShiftNodes(children, node, pivotNode) {
-        console.log('findShiftNodes', node, pivotNode);
         const selection = [];
         if (!pivotNode) {
             toArray(node).forEach(function (n) {
