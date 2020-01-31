@@ -107,6 +107,7 @@
             let selected = null;
             let highlighted = null;
             on(node, 'key-select', function (e) {
+                console.log('SEL', e.detail.value);
                 selected = e.detail.value;
             });
             on(node, 'key-highlight', function (e) {
@@ -140,9 +141,11 @@
                 }
             }
             function key (which) {
+                console.log('   keydn', which);
                 on.emit(node, 'keydown', {key: which}, true);
             }
             function keyup(which) {
+                console.log('   keyup', which);
                 on.emit(document, 'keyup', {key: which}, true);
             }
 
@@ -353,6 +356,7 @@
                     key('ArrowDown');
                     key('ArrowDown');
                     key('ArrowDown');
+                    console.log('GET', controller.getSelected());
                     expect(selected.length).to.equal(3);
                 });
 
@@ -387,6 +391,12 @@
                     controller = keys(node);
                     tmp = dom('li', {html: 'six'}, node);
                 });
+            });
+
+            describe('buttons & inouts', function() {
+                it('should work with an input', () => {
+                    
+                })
             });
 
             describe('table', function () {

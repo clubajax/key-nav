@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function, object-shorthand, sort-vars, no-nested-ternary, indent, indent-legacy, complexity, no-plusplus, prefer-reflect*/
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         // AMD. Register as an anonymous module.
@@ -10,18 +11,12 @@
     } else {
         // Browser globals (root is window)
         root.returnExports = factory();
-        root['keys'] = factory(root.on);
+        root.keys = factory(root.on);
     }
 }(this, function (on) {
-
-    'use strict';
     function keys(listNode, options) {
 
         options = options || {};
-
-        // TODO options:
-        // search an option and/or a function?
-        // space select an option?
 
         const
             controller = {
@@ -57,7 +52,6 @@
         let
             shift = false,
             meta = false,
-            multiHandle,
             observer,
             searchString = '',
             searchStringTimer,
@@ -65,10 +59,10 @@
             selected,
             highlighted;
 
-        selected = select(getSelected(children, options), false, true),
-            highlighted = highlight(fromArray(selected), options.defaultToFirst);
+        selected = select(getSelected(children, options));
+        highlighted = highlight(fromArray(selected), options.defaultToFirst);
 
-        const nodeType = (highlighted || children[0]).localName;
+        const nodeType = (highlighted || children[0] || {}).localName || 'li';
 
         function unhighlight() {
             if (highlighted) {
@@ -83,7 +77,7 @@
             unhighlight();
             if (!node) {
                 if (!children[0] || !defaultToFirst) {
-                    return;
+                    return null;
                 }
                 node = children[0];
             }
@@ -143,14 +137,14 @@
             if (!highlighted) {
                 return;
             }
-            let top = highlighted.offsetTop;
-            let height = highlighted.offsetHeight;
-            let listHeight = listNode.offsetHeight;
+            const top = highlighted.offsetTop;
+            const height = highlighted.offsetHeight;
+            const listHeight = listNode.offsetHeight;
 
             if (top - height < listNode.scrollTop) {
                 listNode.scrollTop = top - height;
-            } else if (top + height * 2 > listNode.scrollTop + listHeight) {
-                listNode.scrollTop = top - listHeight + height * 2;
+            } else if (top + (height * 2) > listNode.scrollTop + listHeight) {
+                listNode.scrollTop = top - listHeight + (height * 2);
             }
         }
 
@@ -186,6 +180,8 @@
                     case 'Shift':
                         shift = true;
                         break;
+                    default:
+                        //
                 }
             }),
             on(listNode, 'keydown', function (e) {
@@ -212,7 +208,7 @@
                             highlight(node);
                             if (multiple && (shift || meta)) {
                                 pivotNode = pivotNode || node;
-                                select(node, true);
+                                select(node);
                             }
                         }
                         scrollTo();
@@ -234,12 +230,12 @@
                             highlight(node);
                             if (multiple && (shift || meta)) {
                                 pivotNode = pivotNode || node;
-                                select(node, true);
+                                select(node);
                             }
                         }
                         scrollTo();
                         e.preventDefault();
-                    //fallthrough
+                    // fallthrough
                     case 'ArrowLeft':
                         if (tableMode) {
                             highlight(getNode(children, highlighted || selected, 'up'));
@@ -249,10 +245,10 @@
                         // the event is not handled
                         if (on.isAlphaNumeric(e.key)) {
                             if (e.key === 'r' && meta) {
-                                return true;
+                                return;
                             }
                             searchString += e.key;
-                            let searchNode = searchHtmlContent(children, searchString);
+                            const searchNode = searchHtmlContent(children, searchString);
                             if (searchNode) {
                                 highlight(select(searchNode));
                                 scrollTo();
@@ -265,7 +261,6 @@
 
                             break;
                         }
-                        return;
                 }
             }),
             on(listNode, 'blur', unhighlight),
@@ -295,7 +290,7 @@
 
         scrollTo();
 
-        multiHandle = on.makeMultiHandle(controller.handles);
+        const multiHandle = on.makeMultiHandle(controller.handles);
         Object.keys(multiHandle).forEach(function (key) {
             controller[key] = multiHandle[key];
         });
@@ -403,31 +398,29 @@
                 break;
             }
         }
-        if (dir === 'down') {
-            return getNext(children, index);
-        } else if (dir === 'up') {
+        if (dir === 'up') {
             return getPrev(children, index);
         }
+        return getNext(children, index);
     }
 
     function getCell(children, highlighted, dir) {
-        let
+        const
             cellIndex = getIndex(highlighted),
             row = highlighted.parentNode,
             rowIndex = getIndex(row),
             rowAmount = row.parentNode.rows.length;
 
-        if (dir === 'down') {
-            if (rowIndex + 1 < rowAmount) {
-                return row.parentNode.rows[rowIndex + 1].cells[cellIndex];
-            }
-            return row.parentNode.rows[0].cells[cellIndex];
-        } else if (dir === 'up') {
+        if (dir === 'up') {
             if (rowIndex > 0) {
                 return row.parentNode.rows[rowIndex - 1].cells[cellIndex];
             }
             return row.parentNode.rows[rowAmount - 1].cells[cellIndex];
         }
+        if (rowIndex + 1 < rowAmount) {
+            return row.parentNode.rows[rowIndex + 1].cells[cellIndex];
+        }
+        return row.parentNode.rows[0].cells[cellIndex];
     }
 
     function getIndex(el) {
