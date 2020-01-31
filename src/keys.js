@@ -46,8 +46,10 @@
             canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
             multiple = options.multiple,
             searchStringTime = options.searchTime || 1000,
+            externalSearch = options.externalSearch,
             // children is a live NodeList, so the reference will update if nodes are added or removed
-            children = tableMode ? listNode.querySelectorAll('td') : listNode.children;
+            children = tableMode ? listNode.querySelectorAll('td') : listNode.children,
+            button = options.buttonId ? document.getElementById(options.buttonId) : null;
 
         let
             shift = false,
@@ -147,6 +149,103 @@
                 listNode.scrollTop = top - listHeight + (height * 2);
             }
         }
+        function onKeyDown(e) {
+            if (e.defaultPrevented) {
+                return;
+            }
+            switch (e.key) {
+                case 'Meta':
+                case 'Control':
+                case 'Command':
+                    meta = true;
+                    break;
+                case 'Shift':
+                    shift = true;
+                    break;
+                case 'Enter':
+                    select(highlighted);
+                    pivotNode = highlighted;
+                    break;
+                case 'Escape':
+                    if (canSelectNone) {
+                        select(null);
+                    }
+                    break;
+
+                case 'ArrowDown':
+                    if (tableMode) {
+                        highlight(getCell(children, highlighted || selected, 'down'));
+                        break;
+                    } else {
+                        const node = getNode(children, highlighted || selected, 'down');
+                        highlight(node);
+                        if (multiple && (shift || meta)) {
+                            pivotNode = pivotNode || node;
+                            select(node);
+                        }
+                    }
+                    scrollTo();
+                    e.preventDefault();
+                // fallthrough
+                case 'ArrowRight':
+                    if (tableMode) {
+                        highlight(getNode(children, highlighted || selected, 'down'));
+                    }
+                    break;
+
+                case 'ArrowUp':
+                    if (tableMode) {
+                        highlight(getCell(children, highlighted || selected, 'up'));
+                        e.preventDefault();
+                        break;
+                    } else {
+                        const node = getNode(children, highlighted || selected, 'up');
+                        highlight(node);
+                        if (multiple && (shift || meta)) {
+                            pivotNode = pivotNode || node;
+                            select(node);
+                        }
+                    }
+                    scrollTo();
+                    e.preventDefault();
+                // fallthrough
+                case 'ArrowLeft':
+                    if (tableMode) {
+                        highlight(getNode(children, highlighted || selected, 'up'));
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        function onInputSearch(e) {
+            if (on.isAlphaNumeric(e.key) || e.key === 'Backspace' || e.key === 'Delete') {
+                if (meta) {
+                    return;
+                }
+                on.fire(button, 'key-search', { value: button.value });
+            }
+        }
+        
+        function onListSearch(e) {
+            if (on.isAlphaNumeric(e.key)) {
+                if (e.key === 'r' && meta) {
+                    return;
+                }
+                searchString += e.key;
+                const searchNode = searchHtmlContent(children, searchString);
+                if (searchNode) {
+                    highlight(select(searchNode));
+                    scrollTo();
+                }
+            
+                clearTimeout(searchStringTimer);
+                searchStringTimer = setTimeout(function () {
+                    searchString = '';
+                }, searchStringTime);
+            }
+        }
 
         controller.handles = [
             on(listNode, 'mousedown', nodeType, function (e, node) {
@@ -167,102 +266,8 @@
                 shift = Boolean(e.shiftKey);
                 meta = false;
             }),
-            on(listNode, 'keydown', function (e) {
-                if (e.defaultPrevented) {
-                    return;
-                }
-                switch (e.key) {
-                    case 'Meta':
-                    case 'Control':
-                    case 'Command':
-                        meta = true;
-                        break;
-                    case 'Shift':
-                        shift = true;
-                        break;
-                    default:
-                        //
-                }
-            }),
-            on(listNode, 'keydown', function (e) {
-                if (e.defaultPrevented) {
-                    return;
-                }
-                switch (e.key) {
-                    case 'Enter':
-                        select(highlighted);
-                        pivotNode = highlighted;
-                        break;
-                    case 'Escape':
-                        if (canSelectNone) {
-                            select(null);
-                        }
-                        break;
-
-                    case 'ArrowDown':
-                        if (tableMode) {
-                            highlight(getCell(children, highlighted || selected, 'down'));
-                            break;
-                        } else {
-                            const node = getNode(children, highlighted || selected, 'down');
-                            highlight(node);
-                            if (multiple && (shift || meta)) {
-                                pivotNode = pivotNode || node;
-                                select(node);
-                            }
-                        }
-                        scrollTo();
-                        e.preventDefault();
-                    // fallthrough
-                    case 'ArrowRight':
-                        if (tableMode) {
-                            highlight(getNode(children, highlighted || selected, 'down'));
-                        }
-                        break;
-
-                    case 'ArrowUp':
-                        if (tableMode) {
-                            highlight(getCell(children, highlighted || selected, 'up'));
-                            e.preventDefault();
-                            break;
-                        } else {
-                            const node = getNode(children, highlighted || selected, 'up');
-                            highlight(node);
-                            if (multiple && (shift || meta)) {
-                                pivotNode = pivotNode || node;
-                                select(node);
-                            }
-                        }
-                        scrollTo();
-                        e.preventDefault();
-                    // fallthrough
-                    case 'ArrowLeft':
-                        if (tableMode) {
-                            highlight(getNode(children, highlighted || selected, 'up'));
-                        }
-                        break;
-                    default:
-                        // the event is not handled
-                        if (on.isAlphaNumeric(e.key)) {
-                            if (e.key === 'r' && meta) {
-                                return;
-                            }
-                            searchString += e.key;
-                            const searchNode = searchHtmlContent(children, searchString);
-                            if (searchNode) {
-                                highlight(select(searchNode));
-                                scrollTo();
-                            }
-
-                            clearTimeout(searchStringTimer);
-                            searchStringTimer = setTimeout(function () {
-                                searchString = '';
-                            }, searchStringTime);
-
-                            break;
-                        }
-                }
-            }),
+            on(listNode, 'keydown', onKeyDown),
+            on(listNode, 'keydown', onListSearch),
             on(listNode, 'blur', unhighlight),
             {
                 pause: function () {if (controller.log) {console.log('pause');} },
@@ -270,6 +275,13 @@
                 remove: function () {if (controller.log) {console.log('remove');} }
             }
         ];
+
+        if (button) {
+            controller.handles.push(on(button, 'keydown', onKeyDown));
+            if (externalSearch) {
+                controller.handles.push(on(button, 'keyup', onInputSearch));
+            }
+        }
 
         if (!options.noRoles) {
             addRoles(listNode);

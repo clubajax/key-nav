@@ -1,5 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 5//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
+
 <head>
     <title>Test keys</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.css">
@@ -9,54 +10,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/2.5.3/mocha.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chai/3.5.0/chai.min.js"></script>
     <style>
-        body{
+        body {
             padding: 20px;
             font-family: sans-serif;
         }
-        ol{
+
+        ol {
             display: block;
             border: 1px solid #ccc;
             padding: 0;
             cursor: pointer;
         }
-        li{
+
+        li {
             list-style: none;
             padding: 3px;
         }
+
         li[aria-current],
-        td[aria-current]{
+        td[aria-current] {
             background: #eee;
         }
+
         li[aria-selected],
-        td[aria-selected]{
+        td[aria-selected] {
             background: #333;
             color: white;
         }
-        tr[aria-current]{
+
+        tr[aria-current] {
             background: #ff9295;
         }
-        tr[aria-selected]{
+
+        tr[aria-selected] {
             background: red;
         }
-        table{
+
+        table {
             border: 2px solid #333;
             border-collapse: collapse;
         }
-        td{
+
+        td {
             border: 1px solid #ccc;
             padding: 5px;
             text-align: center;
         }
-        select{
+
+        select {
             font-size: 14px;
             height: 100px;
         }
     </style>
 </head>
+
 <body>
     <h1>keys test</h1>
     <div id="mocha"></div>
-    <input />
+    <input id="search-input" />
+    <ol id="search-list" tabindex="0">
+    </ol>
     <ol id="list" tabindex="0">
         <li>uno</li>
         <li>dos</li>
@@ -67,17 +80,53 @@
 
     <table tabindex="0" id="table">
         <thead>
-            <tr><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th></tr>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+            </tr>
         </thead>
         <tbody>
-            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
-            <tr><td>6</td><td>7</td><td>8</td><td>9</td><td>10</td></tr>
-            <tr><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td></tr>
-            <tr><td>16</td><td>17</td><td>18</td><td>19</td><td>20</td></tr>
-            <tr><td>21</td><td>22</td><td>23</td><td>24</td><td>25</td></tr>
+            <tr>
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
+                <td>9</td>
+                <td>10</td>
+            </tr>
+            <tr>
+                <td>11</td>
+                <td>12</td>
+                <td>13</td>
+                <td>14</td>
+                <td>15</td>
+            </tr>
+            <tr>
+                <td>16</td>
+                <td>17</td>
+                <td>18</td>
+                <td>19</td>
+                <td>20</td>
+            </tr>
+            <tr>
+                <td>21</td>
+                <td>22</td>
+                <td>23</td>
+                <td>24</td>
+                <td>25</td>
+            </tr>
         </tbody>
     </table>
-    
+
     <select multiple>
         <option value="1">uno</option>
         <option value="2">dos</option>
@@ -86,12 +135,19 @@
         <option value="5">cin</option>
     </select>
     <script>
+        let nameData;
+        fetch('./names.json')
+            .then(data => data.json())
+            .then((data) => {
+                nameData = data;
+                on.fire(document, 'data-ready');
+            });
 
         mocha.setup('bdd');
 
-        describe('keys', function() {
+        describe('keys', function () {
             this.timeout(3000);
-            const 
+            const
                 describe = window.describe,
                 test = window.test,
                 dom = window.dom,
@@ -104,52 +160,74 @@
 
             let controller;
             let node = byId('list');
+            let searchNode = byId('search-list');
+            let searchInput = byId('search-input');
             let selected = null;
             let highlighted = null;
             on(node, 'key-select', function (e) {
-                console.log('SEL', e.detail.value);
                 selected = e.detail.value;
             });
             on(node, 'key-highlight', function (e) {
                 highlighted = e.detail.value;
             });
 
-            function tableMode () {
+            function tableMode() {
                 node = byId('table');
             }
-            function byId (id) {
+            function byId(id) {
                 return document.getElementById(id);
             }
-            function addItems (listNode, amount) {
+            function addItems(listNode, amount) {
                 amount = amount || 1;
                 let
                     i,
                     items = ['seis', 'siete', 'ocho', 'nueve', 'diez'],
                     item,
                     node;
-                for( i = 0; i < amount; i++){
+                for (i = 0; i < amount; i++) {
                     item = items.shift();
                     node = document.createElement('li');
                     node.innerHTML = item;
                     listNode.appendChild(node);
                 }
             }
-            function click(index, mouseup){
+            function click(index, mouseup) {
                 on.emit(node.children[index], EVENTS.MOUSEDOWN);
                 if (mouseup) {
                     on.emit(node.children[index], EVENTS.MOUSEUP);
                 }
             }
-            function key (which) {
+            function key(which) {
                 console.log('   keydn', which);
-                on.emit(node, 'keydown', {key: which}, true);
+                on.emit(node, 'keydown', { key: which }, true);
             }
             function keyup(which) {
                 console.log('   keyup', which);
-                on.emit(document, 'keyup', {key: which}, true);
+                on.emit(document, 'keyup', { key: which }, true);
             }
 
-            afterEach(function() {
+            function search(value) {
+                value = value.toLowerCase();
+                return nameData.filter((item) => {
+                    return item.firstName.toLowerCase().indexOf(value) === 0 || item.lastName.toLowerCase().indexOf(value) === 0
+                }).sort();
+            }
+            function setSearch(items) {
+                function label(item) {
+                    return `${item.firstName} ${item.lastName}`;
+                }
+                function val(item) {
+                    return `${item.firstName.toLowerCase()}-${item.lastName.toLowerCase()}`;
+                }
+                dom.clean(searchNode);
+                const frag = document.createDocumentFragment();
+                items.forEach((item) => {
+                    dom('li', { html: label(item), value: val(item) }, frag);
+                });
+                searchNode.appendChild(frag);
+            }
+
+            afterEach(function () {
                 controller.destroy();
                 selected = null;
                 highlighted = null;
@@ -157,8 +235,8 @@
 
             describe('arrow keys', function () {
                 it('should select and highlight the first item by default', function () {
-                    controller = keys(node, {defaultToFirst: true});
-                    
+                    controller = keys(node, { defaultToFirst: true });
+
                     expect(dom.query('[aria-selected]')).to.equal(node.children[0]);
                     expect(dom.query('[aria-current]')).to.equal(node.children[0]);
                 });
@@ -171,7 +249,7 @@
                 });
 
                 it('should highlight, but not select, the next node on arrow down', function () {
-                    controller = keys(node, {defaultToFirst: true});
+                    controller = keys(node, { defaultToFirst: true });
                     key('ArrowDown');
                     expect(dom.query('[aria-selected]')).to.equal(node.children[0]);
                     expect(dom.query('[aria-current]')).to.equal(node.children[1]);
@@ -188,7 +266,7 @@
                 it('should highlight the last node on arrow up', function () {
                     controller = keys(node);
                     key('ArrowUp');
-                    expect(dom.query('[aria-current]')).to.equal(node.children[node.children.length-1]);
+                    expect(dom.query('[aria-current]')).to.equal(node.children[node.children.length - 1]);
                     key('ArrowDown');
                     expect(dom.query('[aria-current]')).to.equal(node.children[0]);
                 });
@@ -227,7 +305,7 @@
                     expect(controller.getSelected()).to.equal(node.children[2]);
                 });
                 it('should select multiple nodes with setSelected()', function () {
-                    controller = keys(node, {multiple: true});
+                    controller = keys(node, { multiple: true });
                     controller.setSelected([node.children[0], node.children[1]]);
                     expect(dom.queryAll('[aria-selected]')[0]).to.equal(node.children[0]);
                     expect(controller.getSelected().length).to.equal(2);
@@ -235,7 +313,7 @@
                     key('Shift');
                     controller.setSelected([node.children[2], node.children[4]]);
                     expect(controller.getSelected().length).to.equal(4);
-                    
+
                     keyup('Shift');
                     controller.setSelected(null);
                     expect(controller.getSelected().length).to.equal(0);
@@ -244,19 +322,19 @@
 
             describe('roles', function () {
                 it('should add roles to children if in options', function () {
-                    controller = keys(node, {roles:true});
+                    controller = keys(node, { roles: true });
                     window.node = node;
                     expect(dom.queryAll('[role="listitem"]').length).to.equal(5);
-                    
+
                 });
                 it('should add roles to added children', function (done) {
-                    controller = keys(node, {roles:true});
+                    controller = keys(node, { roles: true });
                     window.node = node;
                     expect(dom.queryAll('[role="listitem"]').length).to.equal(5);
                     addItems(node, 2);
                     setTimeout(function () {
                         expect(dom.queryAll('[role="listitem"]').length).to.equal(7);
-                        
+
                         done();
                     }, 100);
 
@@ -265,7 +343,7 @@
 
             describe('multi-select', function () {
                 it('should select multiple on control-click', function () {
-                    controller = keys(node, {multiple:true});
+                    controller = keys(node, { multiple: true });
                     click(2);
                     key('Meta');
                     click(3);
@@ -274,18 +352,18 @@
                 });
 
                 it('should select multiple on shift-click', function () {
-                    controller = keys(node, {multiple:true});
+                    controller = keys(node, { multiple: true });
                     node.focus();
                     click(1, true);
                     key('Shift');
                     click(3);
                     expect(dom.queryAll('[aria-selected]').length).to.equal(3);
                     keyup('Shift');
-                    
+
                 });
 
                 it('should select multiple on shift-click (select upward)', function () {
-                    controller = keys(node, {multiple:true});
+                    controller = keys(node, { multiple: true });
                     node.focus();
                     click(3, true);
                     key('Shift');
@@ -299,11 +377,11 @@
 
             describe('selection', function () {
                 it('should default to the first item selected', function () {
-                    controller = keys(node, {defaultToFirst: true}),
+                    controller = keys(node, { defaultToFirst: true }),
                         selected = dom.queryAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
-                    
+
                 });
 
                 it('should *not* default to the first item selected', function () {
@@ -311,33 +389,33 @@
                         selected = dom.queryAll('[aria-selected]');
 
                     expect(selected.length).to.equal(0);
-                    
+
                 });
 
                 it('should select none with Escape', function () {
-                    controller = keys(node, {defaultToFirst: true}),
+                    controller = keys(node, { defaultToFirst: true }),
                         selected = dom.queryAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
                     key('Escape');
                     expect(dom.queryAll('[aria-selected]').length).to.equal(0);
-                    
+
                 });
 
                 it('should *not* select none with Escape', function () {
-                    controller = keys(node, {canSelectNone: false, defaultToFirst: true}),
+                    controller = keys(node, { canSelectNone: false, defaultToFirst: true }),
                         selected = dom.queryAll('[aria-selected]');
 
                     expect(selected.length).to.equal(1);
                     key('Escape');
                     expect(dom.queryAll('[aria-selected]').length).to.equal(1);
-                    
+
                 });
             });
 
-            describe('events', function(){
+            describe('events', function () {
                 it('should emit events (single select)', function () {
-                    controller = keys(node, {multiple: false});
+                    controller = keys(node, { multiple: false });
 
                     expect(selected).to.equal(null);
                     expect(highlighted).to.equal(null);
@@ -350,13 +428,12 @@
                 });
 
                 it('should emit events (multiple select)', function () {
-                    controller = keys(node, {multiple: true});
+                    controller = keys(node, { multiple: true });
                     node.focus();
                     key('Shift');
                     key('ArrowDown');
                     key('ArrowDown');
                     key('ArrowDown');
-                    console.log('GET', controller.getSelected());
                     expect(selected.length).to.equal(3);
                 });
 
@@ -371,7 +448,7 @@
                         done();
                     });
                     controller = keys(node);
-                    tmp = dom('li', {html: 'six'}, node);
+                    tmp = dom('li', { html: 'six' }, node);
                 });
 
                 it('should emit remove dom events', function (done) {
@@ -382,20 +459,55 @@
                         if (change.removedNodes.length) {
                             expect(change.removedNodes.length).to.equal(1);
                             done();
-                            
-                        } else{
+
+                        } else {
                             expect(change.addedNodes.length).to.equal(1);
                             dom.destroy(tmp);
                         }
                     });
                     controller = keys(node);
-                    tmp = dom('li', {html: 'six'}, node);
+                    tmp = dom('li', { html: 'six' }, node);
                 });
             });
 
-            describe('buttons & inouts', function() {
-                it('should work with an input', () => {
-                    
+            describe('search', function () {
+                it('should work with an input', (done) => {
+                    on(document, 'data-ready', () => {
+                        const restoreNode = node;
+                        node = searchNode;
+                        function searchKey(which) {
+                            searchInput.value += which;
+                            on.emit(searchInput, 'keyup', { key: which }, true);
+                        }
+                        controller = keys(searchNode, {
+                            buttonId: 'search-input',
+                            externalSearch: true
+                        });
+                        on('search-input', 'key-search', function (e) {
+                            console.log('search', e.detail);
+                            setSearch(search(e.detail.value));
+                        });
+                        on(searchNode, 'key-select', function (e) {
+                            console.log('e.detail.value', e.detail.value);
+                            dom.byId('search-input').value = e.detail.value.innerHTML;
+                        });
+
+                        searchInput.focus();
+                        searchKey('M');
+                        searchKey('a');
+
+                        expect(dom.queryAll(searchNode, 'li').length).to.equal(7);
+
+                        on.emit(searchInput, 'keydown', { key: 'ArrowDown' }, true);
+                        on.emit(searchInput, 'keydown', { key: 'ArrowDown' }, true);
+                        on.emit(searchInput, 'keydown', { key: 'ArrowDown' }, true);
+                        on.emit(searchInput, 'keydown', { key: 'Enter' }, true);
+
+                        expect(searchInput.value).to.equal('Wayne Martin');
+
+                        node = restoreNode;
+                        done();
+                    });
                 })
             });
 
@@ -409,7 +521,7 @@
                         hi = function (node) {
                             return node.hasAttribute('aria-current');
                         },
-                        controller = keys(node, {defaultToFirst: true}),
+                        controller = keys(node, { defaultToFirst: true }),
                         cells = dom.queryAll('td');
 
                     expect(sel(cells[0])).to.equal(true);
@@ -424,13 +536,13 @@
                     expect(hi(cells[21])).to.equal(true);
                     key('Enter');
                     expect(sel(cells[21])).to.equal(true);
-                    
+
                 });
             });
 
             describe('manual', function () {
                 it('it turns controllers on', function () {
-                    keys(byId('list'), {multiple: true});
+                    keys(byId('list'), { multiple: true });
                     // keys(byId('table'));
                 });
             });
@@ -440,4 +552,5 @@
 
     </script>
 </body>
+
 </html>
