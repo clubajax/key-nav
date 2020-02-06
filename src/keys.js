@@ -136,19 +136,27 @@
         }
 
         function scrollTo() {
-            if (!highlighted) {
+            const node = highlighted || selected; 
+            // getting parent is expensive, so check node first
+            if (!node) {
                 return;
             }
-            const top = highlighted.offsetTop;
-            const height = highlighted.offsetHeight;
-            const listHeight = listNode.offsetHeight;
+            const parent = getListContainer(listNode);
+            if (!parent) {
+                return;
+            }
+            
+            const top = node.offsetTop;
+            const height = node.offsetHeight;
+            const listHeight = parent.offsetHeight;
 
-            if (top - height < listNode.scrollTop) {
-                listNode.scrollTop = top - height;
-            } else if (top + (height * 2) > listNode.scrollTop + listHeight) {
-                listNode.scrollTop = top - listHeight + (height * 2);
+            if (top - height < parent.scrollTop) {
+                parent.scrollTop = top - height;
+            } else if (top + (height * 2) > parent.scrollTop + listHeight) {
+                parent.scrollTop = top - listHeight + (height * 2);
             }
         }
+
         function onKeyDown(e) {
             if (e.defaultPrevented) {
                 return;
@@ -220,6 +228,7 @@
         }
 
         function onInputSearch(e) {
+            // This is used if the "button" is an input, and does a search on the server
             if (on.isAlphaNumeric(e.key) || e.key === 'Backspace' || e.key === 'Delete') {
                 if (meta) {
                     return;
@@ -229,6 +238,7 @@
         }
         
         function onListSearch(e) {
+            // This emulates a native select's capability to search the current list
             if (on.isAlphaNumeric(e.key)) {
                 if (e.key === 'r' && meta) {
                     return;
@@ -236,7 +246,7 @@
                 searchString += e.key;
                 const searchNode = searchHtmlContent(children, searchString);
                 if (searchNode) {
-                    highlight(select(searchNode));
+                    highlight(searchNode);
                     scrollTo();
                 }
             
@@ -277,10 +287,15 @@
         ];
 
         if (button) {
-            controller.handles.push(on(button, 'keydown', onKeyDown));
-            if (externalSearch) {
-                controller.handles.push(on(button, 'keyup', onInputSearch));
-            }
+            // timeout is needed so a parent button ENTER can override keys ENTER detection
+            setTimeout(function () {
+                controller.handles.push(on(button, 'keydown', onKeyDown));
+                if (externalSearch) {
+                    controller.handles.push(on(button, 'keyup', onInputSearch));
+                } else {
+                    controller.handles.push(on(button, 'keyup', onListSearch));
+                }
+            }, 30);
         }
 
         if (!options.noRoles) {
@@ -314,8 +329,14 @@
             controller._resume();
         };
 
+        controller.scrollTo = scrollTo;
+
         return controller;
     }
+
+    //
+    // ---- helpers
+    //
 
     function isSelected(node) {
         if (!node) {
@@ -443,6 +464,29 @@
             }
         }
         return null;
+    }
+
+    function getListContainer(listNode) {
+        function notContainer(n) {
+            const style = window.getComputedStyle(n);
+            return style['overflow'] !== 'auto' || style['overflow-y'] !== 'auto'; 
+        }
+
+        
+        if (listNode.__scroll_container !== undefined) {
+            return listNode.__scroll_container;
+        }
+
+        let node = listNode;
+        while (notContainer(node)) {
+            node = node.parentNode;
+            if (!node || node === document.body) {
+                listNode.__scroll_container = null;
+                return null;
+            }
+        }
+        listNode.__scroll_container = node;
+        return node;
     }
 
     function searchHtmlContent(children, str) {
