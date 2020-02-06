@@ -360,6 +360,9 @@
     }
 
     function getNext(children, index) {
+        if (index === -1) {
+            index = 0;
+        }
         let norecurse = children.length + 2;
         let node = children[index];
         while (node) {
@@ -398,6 +401,9 @@
     }
 
     function isVisible(node) {
+        if (/divider|group|label/.test(node.className)) {
+            return false;
+        }
         return node.style.display !== 'none' && node.offsetHeight && node.offsetWidth;
     }
 
@@ -420,7 +426,8 @@
     }
 
     function isElligible(children, index) {
-        return children[index] && !children[index].parentNode.disabled && isVisible(children[index]);
+        const child = children[index];
+        return child && !child.parentNode.disabled && isVisible(child);
     }
 
     function getNode(children, highlighted, dir) {
@@ -492,7 +499,7 @@
     function searchHtmlContent(children, str) {
         str = str.toLowerCase();
         for (let i = 0; i < children.length; i++) {
-            if (children[i].innerHTML.toLowerCase().indexOf(str) === 0) {
+            if (isElligible(children[i]) && children[i].innerHTML.toLowerCase().indexOf(str) === 0) {
                 return children[i];
             }
         }
@@ -519,7 +526,7 @@
             end = newIndex;
         }
         toArray(children).forEach(function (child, i) {
-            if (i >= beg && i <= end) {
+            if (i >= beg && i <= end && isElligible(child)) {
                 child.setAttribute('aria-selected', 'true'); 
                 selection.push(child);
             } else {
@@ -532,7 +539,9 @@
     function addRoles(node) {
         // https://www.w3.org/TR/wai-aria/roles#listbox
         for (let i = 0; i < node.children.length; i++) {
-            node.children[i].setAttribute('role', 'listitem');
+            if (isElligible(node.children[i])) {
+                node.children[i].setAttribute('role', 'listitem');
+            }
         }
         node.setAttribute('role', 'listbox');
     }
