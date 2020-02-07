@@ -60,11 +60,8 @@
             pivotNode,
             selected,
             highlighted;
-
-        selected = select(getSelected(children, options));
-        highlighted = highlight(fromArray(selected), options.defaultToFirst);
-
-        const nodeType = (highlighted || children[0] || {}).localName || 'li';
+        
+        const nodeType = (getNext(children, 0) || {}).localName || 'li';
 
         function unhighlight() {
             if (highlighted) {
@@ -99,6 +96,7 @@
                 });
                 selected = multiple ? [] : null;
             }
+            console.log('select', multiple, shift, meta, node);
             if (node && multiple) {
                 selected = toArray(selected);
                 if (shift && !Array.isArray(node)) {
@@ -154,6 +152,22 @@
                 parent.scrollTop = top - height;
             } else if (top + (height * 2) > parent.scrollTop + listHeight) {
                 parent.scrollTop = top - listHeight + (height * 2);
+            }
+        }
+
+        function onDocKeyDown(e) {
+            if (e.defaultPrevented) {
+                return;
+            }
+            switch (e.key) {
+                case 'Meta':
+                case 'Control':
+                case 'Command':
+                    meta = true;
+                    break;
+                case 'Shift':
+                    shift = true;
+                    break;
             }
         }
 
@@ -276,6 +290,7 @@
                 shift = Boolean(e.shiftKey);
                 meta = false;
             }),
+            on(document, 'keydown', onDocKeyDown),
             on(listNode, 'keydown', onKeyDown),
             on(listNode, 'keydown', onListSearch),
             on(listNode, 'blur', unhighlight),
@@ -315,7 +330,7 @@
             }
         }
 
-        scrollTo();
+        
 
         const multiHandle = on.makeMultiHandle(controller.handles);
         Object.keys(multiHandle).forEach(function (key) {
@@ -331,6 +346,16 @@
 
         controller.scrollTo = scrollTo;
 
+        // need to wait until the controller is returned before
+        // selecting, or component cannot get initial value
+        setTimeout(function () {
+            
+            selected = select(getSelected(children, options));
+            highlighted = highlight(fromArray(selected), options.defaultToFirst);
+            console.log('TIMED SELECT', selected);
+            scrollTo();
+        }, 1);
+        
         return controller;
     }
 
@@ -360,16 +385,17 @@
     }
 
     function getNext(children, index) {
-        if (index === -1) {
-            index = 0;
-        }
+        // why did I think I needed to do this?
+        // if (index === -1) {
+        //     index = 0;
+        // }
         let norecurse = children.length + 2;
         let node = children[index];
         while (node) {
             index++;
             if (index > children.length - 1) {
                 index = -1;
-            } else if (isElligible(children, index)) {
+            } else if (isElligible(children[index])) {
                 node = children[index];
                 break;
             }
@@ -388,7 +414,7 @@
             index--;
             if (index < 0) {
                 index = children.length;
-            } else if (isElligible(children, index)) {
+            } else if (isElligible(children[index])) {
                 node = children[index];
                 break;
             }
@@ -400,16 +426,9 @@
         return node || children[children.length - 1];
     }
 
-    function isVisible(node) {
-        if (/divider|group|label/.test(node.className)) {
-            return false;
-        }
-        return node.style.display !== 'none' && node.offsetHeight && node.offsetWidth;
-    }
-
     function getFirstElligible(children) {
         for (let i = 0; i < children.length; i++) {
-            if (isElligible(children, i)) {
+            if (isElligible(children[i])) {
                 return children[i];
             }
         }
@@ -418,16 +437,26 @@
 
     function getLastElligible(children) {
         for (let i = children.length - 1; i >= 0; i--) {
-            if (isElligible(children, i)) {
+            if (isElligible(children[i])) {
                 return children[i];
             }
         }
         return null;
     }
 
-    function isElligible(children, index) {
-        const child = children[index];
-        return child && !child.parentNode.disabled && isVisible(child);
+    function isVisible(node) {
+        if (/divider|group|label/.test(node.className)) {
+            return false;
+        }
+        return node.style.display !== 'none' && node.offsetHeight && node.offsetWidth;
+    }
+
+    function isDisabled(node) {
+        return node.parentNode.disabled || node.disabled || node.hasAttribute('disabled'); 
+    }
+
+    function isElligible(child) {
+        return child && !isDisabled(child) && isVisible(child);
     }
 
     function getNode(children, highlighted, dir) {

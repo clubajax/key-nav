@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@clubajax/dom/-/dom-2.8.5.tgz#1d8893d9956f500d5354f248e5e553576cd55a64"
   integrity sha512-uDj2meNcvcrGE/mC1Jfzuq5mDRqydBLseFR9TSlH1529wYFWfqwvAl5lV22uXngIJerBFPcbULwZFDoeqkIU+g==
 
-"@clubajax/on@^2.1.8":
-  version "2.1.8"
-  resolved "https://registry.yarnpkg.com/@clubajax/on/-/on-2.1.8.tgz#b04fa40ef0b1a5d697d7dcea82def98a3b0329c3"
-  integrity sha1-sE+kDvCxpdaX19zqgt75ijsDKcM=
+"@clubajax/on@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@clubajax/on/-/on-2.2.0.tgz#b0f1be8c2b02a641a4b41856cbad48589aac2c39"
+  integrity sha512-hJb67QTgkJpkGzRC8ySiAn7nCSOdHK/ii0inFNia1GkWz9QKAv1j+x9NaRLTh1cdVC/NKpquJAwOLNP9BMFT0g==
   dependencies:
     grunt "^1.0.1"
     grunt-contrib-uglify "^2.3.0"
