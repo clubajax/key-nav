@@ -96,7 +96,6 @@
                 });
                 selected = multiple ? [] : null;
             }
-            console.log('select', multiple, shift, meta, node);
             if (node && multiple) {
                 selected = toArray(selected);
                 if (shift && !Array.isArray(node)) {
@@ -260,7 +259,7 @@
                 searchString += e.key;
                 const searchNode = searchHtmlContent(children, searchString);
                 if (searchNode) {
-                    highlight(searchNode);
+                    select(highlight(searchNode));
                     scrollTo();
                 }
             
@@ -346,15 +345,18 @@
 
         controller.scrollTo = scrollTo;
 
-        // need to wait until the controller is returned before
-        // selecting, or component cannot get initial value
-        setTimeout(function () {
-            
+        function init() {
             selected = select(getSelected(children, options));
             highlighted = highlight(fromArray(selected), options.defaultToFirst);
-            console.log('TIMED SELECT', selected);
             scrollTo();
-        }, 1);
+        }
+        if (options.noInitDelay) {
+            init();
+        } else {
+            // need to wait until the controller is returned before
+            // selecting, or component cannot get initial value
+            setTimeout(init, 1);
+        }
         
         return controller;
     }
