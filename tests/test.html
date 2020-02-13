@@ -198,11 +198,9 @@
                 }
             }
             function key(which) {
-                console.log('   keydn', which);
                 on.emit(node, 'keydown', { key: which }, true);
             }
             function keyup(which) {
-                console.log('   keyup', which);
                 on.emit(document, 'keyup', { key: which }, true);
             }
 
@@ -363,7 +361,7 @@
                 });
 
                 it('should select multiple on shift-click (select upward)', function () {
-                    controller = keys(node, { multiple: true });
+                    controller = keys(node, { multiple: true, noInitDelay: true });
                     node.focus();
                     click(3, true);
                     key('Shift');
@@ -509,6 +507,25 @@
                         done();
                     });
                 })
+            });
+
+            describe('mobile', function(){
+                it('should multi-select in mobile-mode', function(){
+                    controller = keys(node, { multiple: true, noInitDelay: true });
+                    // non-mobile
+                    click(2, true);
+                    click(3, true);
+                    expect(dom.queryAll('[aria-selected]').length).to.equal(1);
+                    // mobile mode
+                    controller.setMobileMode(true);
+                    click(2, true);
+                    click(1, true);
+                    expect(dom.queryAll('[aria-selected]').length).to.equal(3);
+                    // unselect by clicking
+                    click(2, true);
+                    click(1, true);
+                    expect(dom.queryAll('[aria-selected]').length).to.equal(1);
+                });
             });
 
             describe('table', function () {

@@ -27,6 +27,10 @@
                 getSelected: function () {
                     return selected;
                 },
+                setMobileMode: function (enable) {
+                    isMobile = !!enable;
+                    meta = !!enable;
+                },
                 remove: function () {
                     this.destroy();
                 },
@@ -58,6 +62,7 @@
             searchString = '',
             searchStringTimer,
             pivotNode,
+            isMobile = false,
             selected,
             highlighted;
         
@@ -88,6 +93,12 @@
             return highlighted;
         }
 
+        function unselect(node) {
+            node.removeAttribute('aria-selected');
+            const index = findIndex(node, selected);
+            selected.splice(index, 1);
+        }
+
         function select(node) {
             const clearSelection = !shift && !meta;
             if (clearSelection && selected) {
@@ -101,10 +112,14 @@
                 if (shift && !Array.isArray(node)) {
                     selected = findShiftNodes(children, node, pivotNode);
                 } else if (meta || shift) {
-                    selected = [...selected, ...toArray(node)];
-                    selected.forEach(function (sel) {
-                        sel.setAttribute('aria-selected', 'true');
-                    });
+                    if (meta && !shift && isSelected(node)) {
+                        unselect(node);
+                    } else {
+                        selected = [...selected, ...toArray(node)];
+                        selected.forEach(function (sel) {
+                            sel.setAttribute('aria-selected', 'true');
+                        });
+                    }
                 } else if (Array.isArray(node)) {
                     selected = [];
                     node.forEach(function (n) {
@@ -287,7 +302,7 @@
                     return;
                 }
                 shift = Boolean(e.shiftKey);
-                meta = false;
+                meta = isMobile;
             }),
             on(document, 'keydown', onDocKeyDown),
             on(listNode, 'keydown', onKeyDown),
@@ -477,9 +492,9 @@
 
     function getCell(children, highlighted, dir) {
         const
-            cellIndex = getIndex(highlighted),
+            cellIndex = getChildIndex(highlighted),
             row = highlighted.parentNode,
-            rowIndex = getIndex(row),
+            rowIndex = getChildIndex(row),
             rowAmount = row.parentNode.rows.length;
 
         if (dir === 'up') {
@@ -494,7 +509,7 @@
         return row.parentNode.rows[0].cells[cellIndex];
     }
 
-    function getIndex(el) {
+    function getChildIndex(el) {
         let i, p = el.parentNode;
         for (i = 0; i < p.children.length; i++) {
             if (p.children[i] === el) {
@@ -502,6 +517,15 @@
             }
         }
         return null;
+    }
+
+    function findIndex(item, list) {
+        for (let i = 0; i < list.length; i++) {
+            if (list[i] === item) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     function getListContainer(listNode) {
@@ -546,8 +570,8 @@
             });
             return selection;
         }
-        const pivotIndex = getIndex(pivotNode);
-        const newIndex = getIndex(node);
+        const pivotIndex = getChildIndex(pivotNode);
+        const newIndex = getChildIndex(node);
         let beg, end;
         if (newIndex < pivotIndex) {
             beg = newIndex;
