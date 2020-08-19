@@ -22,7 +22,7 @@
             controller = {
                 log: false,
                 setSelected: function (node) {
-                    select(node);
+                    select(node, multiple);
                 },
                 getSelected: function () {
                     return selected;
@@ -48,7 +48,8 @@
             },
             tableMode = listNode.localName === 'table',
             canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
-            multiple = options.multiple,
+            persistMultiple = !!options.persistMultiple,
+            multiple = options.multiple || options.persistMultiple,
             searchStringTime = options.searchTime || 1000,
             externalSearch = options.externalSearch,
             // children is a live NodeList, so the reference will update if nodes are added or removed
@@ -57,7 +58,7 @@
 
         let
             shift = false,
-            meta = false,
+            meta = persistMultiple,
             observer,
             searchString = '',
             searchStringTimer,
@@ -99,8 +100,8 @@
             selected.splice(index, 1);
         }
 
-        function select(node) {
-            const clearSelection = !shift && !meta;
+        function select(node, clear) {
+            const clearSelection = clear || (!shift && !meta);
             if (clearSelection && selected) {
                 toArray(selected).forEach(function (sel) {
                     sel.removeAttribute('aria-selected');
@@ -111,7 +112,7 @@
                 selected = toArray(selected);
                 if (shift && !Array.isArray(node)) {
                     selected = findShiftNodes(children, node, pivotNode);
-                } else if (meta || shift) {
+                } else if (!Array.isArray(node) && (meta || shift)) {
                     if (meta && !shift && isSelected(node)) {
                         unselect(node);
                     } else {
@@ -302,7 +303,7 @@
                     return;
                 }
                 shift = Boolean(e.shiftKey);
-                meta = isMobile;
+                meta = isMobile || persistMultiple;
             }),
             on(document, 'keydown', onDocKeyDown),
             on(listNode, 'keydown', onKeyDown),
