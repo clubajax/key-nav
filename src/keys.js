@@ -22,7 +22,7 @@
             controller = {
                 log: false,
                 setSelected: function (node) {
-                    select(node, multiple);
+                    select(node, multiple || persistMultiple);
                 },
                 getSelected: function () {
                     return selected;
@@ -49,7 +49,7 @@
             tableMode = listNode.localName === 'table',
             canSelectNone = options.canSelectNone !== undefined ? options.canSelectNone : true,
             persistMultiple = !!options.persistMultiple,
-            multiple = options.multiple || options.persistMultiple,
+            multiple = options.multiple, // || options.persistMultiple,
             searchStringTime = options.searchTime || 1000,
             externalSearch = options.externalSearch,
             // children is a live NodeList, so the reference will update if nodes are added or removed
@@ -58,7 +58,7 @@
 
         let
             shift = false,
-            meta = persistMultiple,
+            meta = false, //persistMultiple,
             observer,
             searchString = '',
             searchStringTimer,
@@ -101,14 +101,14 @@
         }
 
         function select(node, clear) {
-            const clearSelection = clear || (!shift && !meta);
+            const clearSelection = clear || (!shift && !meta && !persistMultiple);
             if (clearSelection && selected) {
                 toArray(selected).forEach(function (sel) {
                     sel.removeAttribute('aria-selected');
                 });
                 selected = multiple ? [] : null;
             }
-            if (node && multiple) {
+            if (node && (multiple || persistMultiple)) {
                 selected = toArray(selected);
                 if (shift && !Array.isArray(node)) {
                     selected = findShiftNodes(children, node, pivotNode);

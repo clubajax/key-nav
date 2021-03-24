@@ -1,6 +1,6 @@
 {
   "name": "@clubajax/key-nav",
-  "version": "2.6.1",
+  "version": "2.6.5",
   "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
   "main": "keys.js",
   "module": "keys.js",
@@ -9,6 +9,6 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "@clubajax/on": "2.2.0"
+    "@clubajax/on": "2.2.2"
   }
 }
