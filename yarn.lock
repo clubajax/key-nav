@@ -2,18 +2,15 @@
 # yarn lockfile v1
 
 
-"@clubajax/dom@^2.8.5":
-  version "2.8.5"
-  resolved "https://registry.yarnpkg.com/@clubajax/dom/-/dom-2.8.5.tgz#1d8893d9956f500d5354f248e5e553576cd55a64"
-  integrity sha512-uDj2meNcvcrGE/mC1Jfzuq5mDRqydBLseFR9TSlH1529wYFWfqwvAl5lV22uXngIJerBFPcbULwZFDoeqkIU+g==
+"@clubajax/dom@^2.8.6":
+  version "2.8.6"
+  resolved "https://registry.yarnpkg.com/@clubajax/dom/-/dom-2.8.6.tgz#9b2c9c4efebaa44a0d0b6032c29d9771bc5ee10d"
+  integrity sha512-VOvVjDT4eEdFtr5F9ba69slMwiG5w1+i1I59YeeNj1QaBh4YFbVWCpi5LaCoU+O7lZYo1IqlmctI18fXZUantA==
 
-"@clubajax/on@^2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@clubajax/on/-/on-2.2.0.tgz#b0f1be8c2b02a641a4b41856cbad48589aac2c39"
-  integrity sha512-hJb67QTgkJpkGzRC8ySiAn7nCSOdHK/ii0inFNia1GkWz9QKAv1j+x9NaRLTh1cdVC/NKpquJAwOLNP9BMFT0g==
-  dependencies:
-    grunt "^1.0.1"
-    grunt-contrib-uglify "^2.3.0"
+"@clubajax/on@^2.2.2":
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/@clubajax/on/-/on-2.2.2.tgz#f28b5abe1e65421bbaba45495f31c78838feb3ad"
+  integrity sha512-LBrDE55RfirpORs1Lus3AIS+XNvUo/3ao4sVb8lTQHFOFWlYheltApWeDE2yzEwQxLjYpgFS3gpX72IVPbaVRQ==
 
 abbrev@1:
   version "1.1.1"
@@ -332,7 +329,7 @@ grunt-cli@~1.2.0:
     nopt "~3.0.6"
     resolve "~1.1.0"
 
-grunt-contrib-uglify@^2.0.0, grunt-contrib-uglify@^2.3.0:
+grunt-contrib-uglify@^2.0.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/grunt-contrib-uglify/-/grunt-contrib-uglify-2.3.0.tgz#b3d0260ebdd6cefa12ff2f8e9e1e259f7de4216f"
   integrity sha1-s9AmDr3WzvoS/y+Onh4ln33kIW8=
@@ -379,7 +376,7 @@ grunt-legacy-util@~1.1.1:
     underscore.string "~3.3.4"
     which "~1.3.0"
 
-grunt@^1.0.1, grunt@^1.0.4:
+grunt@^1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/grunt/-/grunt-1.0.4.tgz#c799883945a53a3d07622e0737c8f70bfe19eb38"
   integrity sha512-PYsMOrOC+MsdGEkFVwMaMyc6Ob7pKmq+deg1Sjr+vvMWp35sztfwKE7qoN51V+UEtHsyNuMcGdgMLFkBHvMxHQ==
@@ -433,9 +430,9 @@ hooker@~0.2.3:
   integrity sha1-uDT3I8xKJCqmWWNFnfbZhMXT2Vk=
 
 hosted-git-info@^2.1.4:
-  version "2.8.4"
-  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.4.tgz#44119abaf4bc64692a16ace34700fed9c03e2546"
-  integrity sha512-pzXIvANXEFrc5oFFXRMkbLPQ2rXRoDERwDLyrcUxGhaZhgP54BBSl9Oheh7Vv0T090cszWBxPjkQQ5Sq1PbBRQ==
+  version "2.8.9"
+  resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
+  integrity sha512-mxIDAb9Lsm6DoOJ7xH+5+X4y1LU/4Hi50L9C5sIswK3JzULS4bwk1FvjdBgvYR4bzT4tuUQiC15FE2f5HbLvYw==
 
 iconv-lite@~0.4.13:
   version "0.4.24"
