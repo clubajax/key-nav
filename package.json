@@ -1,12 +1,12 @@
 {
   "name": "@clubajax/key-nav",
-  "version": "2.6.5",
+  "version": "2.6.10",
   "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
   "main": "src/keys.js",
   "scripts": {
-    "start": "echo Use a local server to run tests",
-    "build": "echo Update the src/package.json and publish from src",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "http-server",
+    "build": "node ./scripts/deploy.js",
+    "jk": "node ./scripts/deploy.js --jk"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,13 @@
   },
   "homepage": "https://github.com/clubajax/key-nav#readme",
   "devDependencies": {
-    "@clubajax/dom": "^2.8.6",
-    "grunt": "^1.0.4",
-    "grunt-contrib-uglify": "^2.0.0"
+    "@clubajax/dom": "^2.8.x",
+    "@clubajax/node-file-managment": "^0.1.x",
+    "fs-extra": "^10.1.0",
+    "http-server": "^14.1.1"
   },
   "dependencies": {
-    "@clubajax/on": "^2.2.2"
+    "@clubajax/on": "^2.2.x"
   },
   "directories": {
     "test": "tests"

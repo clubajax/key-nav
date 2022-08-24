@@ -1,0 +1,10 @@
+{
+  "name": "@janiking/key-nav",
+  "author": "Jani-King",
+  "version": "2.6.10",
+  "description": "Make a list of items keyboard navigable, using arrow, enter, escape and search keys",
+  "main": "keys.js",
+  "dependencies": {
+    "@janiking/on": "^2.2.x"
+  }
+}
